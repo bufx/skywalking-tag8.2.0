@@ -39,6 +39,9 @@
 - kotlin-coroutine
 - lettuce-5.x
 - light4j
+- log4j-logger
+- log4j2-logger
+- logback-logger
 - mariadb-2.x
 - memcache-2.x
 - mongodb-2.x
@@ -80,6 +83,7 @@
 - spring-cloud-gateway-2.1.x
 - spring-concurrent-util-4.x
 - spring-core-patch
+- spring-kafka-1.x
 - spring-kafka-2.x
 - spring-mvc-annotation
 - spring-mvc-annotation-3.x
@@ -110,3 +114,5 @@
 - xxl-job-2.x
 - zookeeper-3.4.x
 - mssql-jtds-1.x
+- mssql-jdbc
+- apache-cxf-3.x
