@@ -60,15 +60,15 @@ core:
     # Aggregator: Level 2 aggregate
     role: ${SW_CORE_ROLE:Mixed} # Mixed/Receiver/Aggregator
     restHost: ${SW_CORE_REST_HOST:0.0.0.0}
-    restPort: ${SW_CORE_REST_PORT:12800}
+    restPort: ${SW_CORE_REST_PORT:12805}
     restContextPath: ${SW_CORE_REST_CONTEXT_PATH:/}
     restMinThreads: ${SW_CORE_REST_JETTY_MIN_THREADS:1}
     restMaxThreads: ${SW_CORE_REST_JETTY_MAX_THREADS:200}
     restIdleTimeOut: ${SW_CORE_REST_JETTY_IDLE_TIMEOUT:30000}
     restAcceptorPriorityDelta: ${SW_CORE_REST_JETTY_DELTA:0}
     restAcceptQueueSize: ${SW_CORE_REST_JETTY_QUEUE_SIZE:0}
-    gRPCHost: ${SW_CORE_GRPC_HOST:0.0.0.0}
-    gRPCPort: ${SW_CORE_GRPC_PORT:11800}
+    gRPCHost: ${SW_CORE_GRPC_HOST:127.0.0.1}
+    gRPCPort: ${SW_CORE_GRPC_PORT:11805}
     maxConcurrentCallsPerConnection: ${SW_CORE_GRPC_MAX_CONCURRENT_CALL:0}
     maxMessageSize: ${SW_CORE_GRPC_MAX_MESSAGE_SIZE:0}
     gRPCThreadPoolQueueSize: ${SW_CORE_GRPC_POOL_QUEUE_SIZE:0}
@@ -101,7 +101,7 @@ core:
     # Define the set of span tag keys, which should be searchable through the GraphQL.
     searchableTracesTags: ${SW_SEARCHABLE_TAG_KEYS:http.method,status_code,db.type,db.instance,mq.queue,mq.topic,mq.broker}
 storage:
-  selector: ${SW_STORAGE:h2}
+  selector: ${SW_STORAGE:elasticsearch7}
   elasticsearch:
     nameSpace: ${SW_NAMESPACE:""}
     clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:localhost:9200}
@@ -128,7 +128,7 @@ storage:
     profileTaskQueryMaxSize: ${SW_STORAGE_ES_QUERY_PROFILE_TASK_SIZE:200}
     advanced: ${SW_STORAGE_ES_ADVANCED:""}
   elasticsearch7:
-    nameSpace: ${SW_NAMESPACE:""}
+    nameSpace: ${SW_NAMESPACE:"localhost_github_apm_8_2_0"}
     clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:localhost:9200}
     protocol: ${SW_STORAGE_ES_HTTP_PROTOCOL:"http"}
     trustStorePath: ${SW_STORAGE_ES_SSL_JKS_PATH:""}
@@ -317,7 +317,7 @@ telemetry:
     sslCertChainPath: ${SW_TELEMETRY_PROMETHEUS_SSL_CERT_CHAIN_PATH:""}
 
 configuration:
-  selector: ${SW_CONFIGURATION:none}
+  selector: ${SW_CONFIGURATION:apollo}
   none:
   grpc:
     host: ${SW_DCS_SERVER_HOST:""}
@@ -325,7 +325,7 @@ configuration:
     clusterName: ${SW_DCS_CLUSTER_NAME:SkyWalking}
     period: ${SW_DCS_PERIOD:20}
   apollo:
-    apolloMeta: ${SW_CONFIG_APOLLO:http://106.12.25.204:8080}
+    apolloMeta: ${SW_CONFIG_APOLLO:http://127.0.0.1:8080}
     apolloCluster: ${SW_CONFIG_APOLLO_CLUSTER:default}
     apolloEnv: ${SW_CONFIG_APOLLO_ENV:""}
     appId: ${SW_CONFIG_APOLLO_APP_ID:skywalking}
