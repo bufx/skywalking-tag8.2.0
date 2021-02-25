@@ -58,6 +58,12 @@ public class ApolloConfigurationProvider extends AbstractConfigurationProvider {
             System.setProperty("apollo.meta", apolloMeta);
         }
 
+        final String apolloConfig = settings.getApolloConfig();
+
+        if (Strings.isNullOrEmpty(apolloMeta)) {
+            System.setProperty("apollo.configService", apolloConfig);
+        }
+
         final String appId = settings.getAppId();
 
         if (!Strings.isNullOrEmpty(appId)) {

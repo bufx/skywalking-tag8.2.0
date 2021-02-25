@@ -264,7 +264,7 @@ kafka-fetcher:
     consumePartitions: ${SW_KAFKA_FETCHER_CONSUME_PARTITIONS:""}
 
 receiver-meter:
-  selector: ${SW_RECEIVER_METER:-}
+  selector: ${SW_RECEIVER_METER:default}
   default:
 
 receiver-oc:
@@ -325,7 +325,8 @@ configuration:
     clusterName: ${SW_DCS_CLUSTER_NAME:SkyWalking}
     period: ${SW_DCS_PERIOD:20}
   apollo:
-    apolloMeta: ${SW_CONFIG_APOLLO:http://127.0.0.1:8080}
+    apolloMeta: ${SW_META_APOLLO:""}
+    apolloConfig: ${SW_CONFIG_APOLLO:"http://10.10.102.9:8080"}
     apolloCluster: ${SW_CONFIG_APOLLO_CLUSTER:default}
     apolloEnv: ${SW_CONFIG_APOLLO_ENV:""}
     appId: ${SW_CONFIG_APOLLO_APP_ID:skywalking}
