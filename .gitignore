@@ -1,5 +1,9 @@
 /build/
-target/
+#target/
+#排除./mvnw compile -Dmaven.test.skip=true生成的源代码
+**/target/*
+!**/target/generated-sources
+
 .idea/
 *.iml
 .classpath
@@ -10,9 +14,12 @@ target/
 packages/
 **/dependency-reduced-pom.xml
 /skywalking-agent/
-**/dist/
+#排除生成的tar包
+**/dist/*
+!/dist/*.tar.gz
+
 /docker/snapshot/*.gz
-.mvn/wrapper/*.jar
+#.mvn/wrapper/*.jar
 OALLexer.tokens
 .factorypath
 .vscode
