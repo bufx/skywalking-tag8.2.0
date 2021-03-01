@@ -16,7 +16,7 @@ packages/
 /skywalking-agent/
 #排除生成的tar包
 **/dist/*
-!/dist/*.tar.gz
+#!/dist/*.tar.gz
 
 /docker/snapshot/*.gz
 #.mvn/wrapper/*.jar
