@@ -59,7 +59,7 @@ core:
     # Receiver: Receive agent data, Level 1 aggregate
     # Aggregator: Level 2 aggregate
     role: ${SW_CORE_ROLE:Mixed} # Mixed/Receiver/Aggregator
-    restHost: ${SW_CORE_REST_HOST:0.0.0.0}
+    restHost: ${SW_CORE_REST_HOST:127.0.0.1}
     restPort: ${SW_CORE_REST_PORT:12800}
     restContextPath: ${SW_CORE_REST_CONTEXT_PATH:/}
     restMinThreads: ${SW_CORE_REST_JETTY_MIN_THREADS:1}
@@ -67,7 +67,7 @@ core:
     restIdleTimeOut: ${SW_CORE_REST_JETTY_IDLE_TIMEOUT:30000}
     restAcceptorPriorityDelta: ${SW_CORE_REST_JETTY_DELTA:0}
     restAcceptQueueSize: ${SW_CORE_REST_JETTY_QUEUE_SIZE:0}
-    gRPCHost: ${SW_CORE_GRPC_HOST:0.0.0.0}
+    gRPCHost: ${SW_CORE_GRPC_HOST:127.0.0.1}
     gRPCPort: ${SW_CORE_GRPC_PORT:11800}
     maxConcurrentCallsPerConnection: ${SW_CORE_GRPC_MAX_CONCURRENT_CALL:0}
     maxMessageSize: ${SW_CORE_GRPC_MAX_MESSAGE_SIZE:0}
@@ -103,7 +103,7 @@ core:
     # Define the set of log tag keys, which should be searchable through the GraphQL.
     searchableLogsTags: ${SW_SEARCHABLE_LOGS_TAG_KEYS:level}
 storage:
-  selector: ${SW_STORAGE:h2}
+  selector: ${SW_STORAGE:elasticsearch7}
   elasticsearch:
     nameSpace: ${SW_NAMESPACE:""}
     clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:localhost:9200}
@@ -353,7 +353,7 @@ telemetry:
     sslCertChainPath: ${SW_TELEMETRY_PROMETHEUS_SSL_CERT_CHAIN_PATH:""}
 
 configuration:
-  selector: ${SW_CONFIGURATION:none}
+  selector: ${SW_CONFIGURATION:apollo}
   none:
   grpc:
     host: ${SW_DCS_SERVER_HOST:""}
@@ -362,6 +362,7 @@ configuration:
     period: ${SW_DCS_PERIOD:20}
   apollo:
     apolloMeta: ${SW_CONFIG_APOLLO:http://localhost:8080}
+    apolloConfig: ${SW_CONFIG_APOLLO:"http://10.10.102.9:8080"}
     apolloCluster: ${SW_CONFIG_APOLLO_CLUSTER:default}
     apolloEnv: ${SW_CONFIG_APOLLO_ENV:""}
     appId: ${SW_CONFIG_APOLLO_APP_ID:skywalking}

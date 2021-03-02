@@ -27,6 +27,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 public class ApolloConfigurationCenterSettings extends ModuleConfig {
     private String apolloCluster = "default";
     private String apolloMeta;
+    private String apolloConfig;
     private String apolloEnv;
     private String appId = "skywalking";
     private String namespace = "application";
