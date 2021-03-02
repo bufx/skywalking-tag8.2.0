@@ -1,0 +1,295 @@
+<!-- Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License. -->
+
+<template>
+  <div class="rk-search-conditions flex-v">
+    <div class="flex-h">
+      <div class="mr-15">
+        <span class="sm b grey mr-10">{{ this.$t('traceID') }}:</span>
+        <input
+          type="text"
+          class="rk-trace-search-input dib"
+          @change="changeConditions($event, LogConditionsOpt.TraceID)"
+        />
+      </div>
+      <div class="mr-15">
+        <span class="sm b grey mr-10">{{ this.$t('keywordsOfContent') }}:</span>
+        <span class="rk-trace-tags" v-show="rocketLog.supportQueryLogsByKeywords">
+          <span
+            class="selected"
+            v-for="(item, index) in rocketLog.conditions.keywordsOfContent"
+            :key="`keywordsOfContent${index}`"
+          >
+            <span>{{ item }}</span>
+            <span class="remove-icon" @click="removeContent(index)">×</span>
+          </span>
+        </span>
+        <input
+          type="text"
+          :disabled="!rocketLog.supportQueryLogsByKeywords"
+          class="rk-trace-search-input dib mr-5"
+          v-model="keywordsOfContent"
+          @keyup="addLabels($event, LogConditionsOpt.KeywordsOfContent)"
+        />
+        <span
+          class="log-tips"
+          v-show="!rocketLog.supportQueryLogsByKeywords"
+          v-tooltip:bottom="{ content: this.$t('keywordsOfContentLogTips') }"
+        >
+          <rk-icon icon="help" class="mr-5" />
+        </span>
+      </div>
+      <div class="mr-15">
+        <span class="sm b grey mr-10">{{ this.$t('excludingKeywordsOfContent') }}:</span>
+        <span class="rk-trace-tags" v-show="rocketLog.supportQueryLogsByKeywords">
+          <span
+            class="selected"
+            v-for="(item, index) in rocketLog.conditions.excludingKeywordsOfContent"
+            :key="`excludingKeywordsOfContent${index}`"
+          >
+            <span>{{ item }}</span>
+            <span class="remove-icon" @click="removeExcludeContent(index)">×</span>
+          </span>
+        </span>
+        <input
+          type="text"
+          :disabled="!rocketLog.supportQueryLogsByKeywords"
+          class="rk-trace-search-input dib mr-5"
+          v-model="excludingKeywordsOfContent"
+          @keyup="addLabels($event, LogConditionsOpt.ExcludingKeywordsOfContent)"
+        />
+        <span
+          class="log-tips"
+          v-show="!rocketLog.supportQueryLogsByKeywords"
+          v-tooltip:bottom="{ content: this.$t('keywordsOfContentLogTips') }"
+        >
+          <rk-icon icon="help" class="mr-5" />
+        </span>
+      </div>
+    </div>
+    <div class="mr-10" style="padding-top: 10px">
+      <span class="sm grey">{{ this.$t('tags') }}: </span>
+      <span class="rk-trace-tags">
+        <span class="selected" v-for="(item, index) in tagsList" :key="index">
+          <span>{{ item }}</span>
+          <span class="remove-icon" @click="removeTags(index)">×</span>
+        </span>
+      </span>
+      <input
+        type="text"
+        :placeholder="this.$t('addTag')"
+        v-model="tags"
+        class="rk-trace-new-tag"
+        @keyup="addLabels($event, LogConditionsOpt.Tags)"
+      />
+      <span class="log-tips" v-tooltip:bottom="{ content: this.$t('logsTagsTip') }">
+        <a
+          target="blank"
+          href="https://github.com/apache/skywalking/blob/master/docs/en/setup/backend/configuration-vocabulary.md"
+        >
+          {{ this.$t('tagsLink') }}
+        </a>
+        <rk-icon icon="help" class="mr-5" />
+      </span>
+    </div>
+  </div>
+</template>
+
+<script lang="ts">
+  import { Duration, Option } from '@/types/global';
+  import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
+  import { Mutation, State } from 'vuex-class';
+
+  @Component({
+    components: {},
+  })
+  export default class LogConditions extends Vue {
+    @State('rocketLog') private rocketLog: any;
+    @Mutation('SET_LOG_CONDITIONS') private SET_LOG_CONDITIONS: any;
+    @Mutation('SET_TAG_LIST') private SET_TAG_LIST: any;
+    @Mutation('SET_KEYWORDS_CONTENT') private SET_KEYWORDS_CONTENT: any;
+    @Mutation('SET_EXCLUDING_KEYWORDS_CONTENT') private SET_EXCLUDING_KEYWORDS_CONTENT: any;
+    private keywordsOfContent: string = '';
+    private excludingKeywordsOfContent: string = '';
+    private tagsList: string[] = [];
+    private tags: string = '';
+    private LogConditionsOpt = {
+      TraceID: 'traceId',
+      Tags: 'tags',
+      KeywordsOfContent: 'keywordsOfContent',
+      ExcludingKeywordsOfContent: 'excludingKeywordsOfContent',
+    };
+    private created() {
+      (this.tagsList = localStorage.getItem('logTags') ? JSON.parse(localStorage.getItem('logTags') || '') : []),
+        this.updateTags();
+    }
+    private changeConditions(item: any, type: string) {
+      item = {
+        label: type,
+        key: item.target.value,
+      };
+      this.SET_LOG_CONDITIONS(item);
+    }
+    private addLabels(event: KeyboardEvent, type: string) {
+      if (event.keyCode !== 13) {
+        return;
+      }
+      if (type === this.LogConditionsOpt.Tags && !this.tags) {
+        return;
+      }
+      if (type === this.LogConditionsOpt.KeywordsOfContent && !this.keywordsOfContent) {
+        return;
+      }
+      if (type === this.LogConditionsOpt.ExcludingKeywordsOfContent && !this.excludingKeywordsOfContent) {
+        return;
+      }
+      if (type === this.LogConditionsOpt.Tags) {
+        this.tagsList.push(this.tags);
+        this.tags = '';
+        this.updateTags();
+      } else if (type === this.LogConditionsOpt.KeywordsOfContent) {
+        const keywordsOfContentList = this.rocketLog.conditions.keywordsOfContent || [];
+        keywordsOfContentList.push(this.keywordsOfContent);
+        this.SET_LOG_CONDITIONS({
+          label: type,
+          key: keywordsOfContentList,
+        });
+        this.keywordsOfContent = '';
+        this.updateContent(type);
+      } else if (type === this.LogConditionsOpt.ExcludingKeywordsOfContent) {
+        const excludingKeywordsOfContentList = this.rocketLog.conditions.excludingKeywordsOfContent || [];
+        excludingKeywordsOfContentList.push(this.excludingKeywordsOfContent);
+        this.SET_LOG_CONDITIONS({
+          label: type,
+          key: excludingKeywordsOfContentList,
+        });
+        this.excludingKeywordsOfContent = '';
+        this.updateContent(type);
+      }
+    }
+    private removeContent(index: number) {
+      const keywordsOfContentList = this.rocketLog.conditions.keywordsOfContent || [];
+      keywordsOfContentList.splice(index, 1);
+      this.SET_LOG_CONDITIONS({
+        label: this.LogConditionsOpt.KeywordsOfContent,
+        key: keywordsOfContentList,
+      });
+      this.keywordsOfContent = '';
+      this.updateContent(this.LogConditionsOpt.KeywordsOfContent);
+    }
+    private removeExcludeContent(index: number) {
+      const excludingKeywordsOfContentList = this.rocketLog.conditions.excludingKeywordsOfContent || [];
+      excludingKeywordsOfContentList.splice(index, 1);
+      this.SET_LOG_CONDITIONS({
+        label: this.LogConditionsOpt.ExcludingKeywordsOfContent,
+        key: excludingKeywordsOfContentList,
+      });
+      this.excludingKeywordsOfContent = '';
+      this.updateContent(this.LogConditionsOpt.ExcludingKeywordsOfContent);
+    }
+    private removeTags(index: number) {
+      this.tagsList.splice(index, 1);
+      this.updateTags();
+    }
+    private updateTags() {
+      const tagsMap = this.tagsList.map((item: string) => {
+        const key = item.substring(0, item.indexOf('='));
+
+        return {
+          key,
+          value: item.substring(item.indexOf('=') + 1, item.length),
+        };
+      });
+      this.SET_LOG_CONDITIONS({
+        label: this.LogConditionsOpt.Tags,
+        key: tagsMap,
+      });
+      localStorage.setItem('logTags', JSON.stringify(this.tagsList));
+    }
+    private updateContent(type: string) {
+      let list = [];
+      let storageContent = '';
+      if (type === this.LogConditionsOpt.KeywordsOfContent) {
+        list = this.rocketLog.conditions.keywordsOfContent;
+        storageContent = 'logKeywordsOfContent';
+      } else if (type === this.LogConditionsOpt.ExcludingKeywordsOfContent) {
+        list = this.rocketLog.conditions.excludingKeywordsOfContent;
+        storageContent = 'logExcludingKeywordsOfContent';
+      }
+
+      localStorage.setItem(storageContent, JSON.stringify(list));
+    }
+    @Watch('rocketLog.conditions.tags')
+    private clearTags() {
+      if (!this.rocketLog.conditions.tags) {
+        this.tagsList = [];
+      }
+    }
+  }
+</script>
+
+<style scoped lang="scss">
+  .rk-search-conditions {
+    width: 100%;
+    background-color: #484b55;
+    padding: 10px;
+    border-radius: 3px;
+    margin-top: 4px;
+    position: relative;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.1);
+
+    &:after {
+      bottom: 100%;
+      right: 370px;
+      border: solid transparent;
+      content: ' ';
+      height: 0;
+      width: 0;
+      position: absolute;
+      pointer-events: none;
+      border-color: rgba(0, 0, 0, 0);
+      border-bottom-color: #484b55;
+      border-width: 8px;
+      margin-right: 0px;
+    }
+    .rk-log-tag {
+      width: 30%;
+      border-style: unset;
+      outline: 0;
+      border: 1px solid #ccc;
+      height: 30px;
+      padding: 0 5px;
+    }
+    .tags-tips {
+      font-weight: normal;
+    }
+    .remove-icon {
+      display: inline-block;
+      margin-left: 3px;
+      cursor: pointer;
+    }
+    .selected {
+      display: inline-block;
+      padding: 0 3px;
+      border-radius: 3px;
+      overflow: hidden;
+      color: #eee;
+      border: 1px dashed #aaa;
+      font-size: 12px;
+      margin: 0 2px;
+    }
+    .log-tips {
+      color: #eee;
+    }
+  }
+</style>
