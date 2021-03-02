@@ -132,7 +132,7 @@ storage:
     oapLogAnalyzer: ${SW_STORAGE_ES_OAP_LOG_ANALYZER:"{\"analyzer\":{\"oap_log_analyzer\":{\"type\":\"standard\"}}}"} # the oap log analyzer. It could be customized by the ES analyzer configuration to support more language log formats, such as Chinese log, Japanese log and etc.
     advanced: ${SW_STORAGE_ES_ADVANCED:""}
   elasticsearch7:
-    nameSpace: ${SW_NAMESPACE:""}
+    nameSpace: ${SW_NAMESPACE:"localhost_skw_8_4_0"}
     clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:localhost:9200}
     protocol: ${SW_STORAGE_ES_HTTP_PROTOCOL:"http"}
     trustStorePath: ${SW_STORAGE_ES_SSL_JKS_PATH:""}
@@ -362,7 +362,7 @@ configuration:
     period: ${SW_DCS_PERIOD:20}
   apollo:
     apolloMeta: ${SW_CONFIG_APOLLO:http://localhost:8080}
-    apolloConfig: ${SW_CONFIG_APOLLO:"http://10.10.102.9:8080"}
+    apolloConfig: ${SW_CONFIG_APOLLO:""}
     apolloCluster: ${SW_CONFIG_APOLLO_CLUSTER:default}
     apolloEnv: ${SW_CONFIG_APOLLO_ENV:""}
     appId: ${SW_CONFIG_APOLLO_APP_ID:skywalking}
