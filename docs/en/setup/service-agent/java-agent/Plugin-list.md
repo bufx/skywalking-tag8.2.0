@@ -16,6 +16,7 @@
 - elastic-job-3.x
 - elasticsearch-5.x
 - elasticsearch-6.x
+- elasticsearch-7.x
 - feign-default-http-9.x
 - feign-pathvar-9.x
 - finagle
@@ -23,7 +24,7 @@
 - grpc-1.x
 - gson-2.8.x
 - h2-1.x
-- hbase-1.x
+- hbase-1.x/2.x
 - httpasyncclient-4.x
 - httpclient-3.x
 - httpclient-4.x
@@ -45,6 +46,7 @@
 - mongodb-3.x
 - mongodb-4.x
 - motan-0.x
+- mybatis-3.x
 - mysql-5.x
 - mysql-6.x
 - mysql-8.x
@@ -52,6 +54,7 @@
 - nutz-http-1.x
 - nutz-mvc-annotation-1.x
 - okhttp-3.x
+- okhttp-4.x
 - play-2.x
 - postgresql-8.x
 - pulsar
@@ -113,3 +116,5 @@
 - mssql-jtds-1.x
 - mssql-jdbc
 - apache-cxf-3.x
+- jsonrpc4j
+- spring-cloud-gateway-3.x

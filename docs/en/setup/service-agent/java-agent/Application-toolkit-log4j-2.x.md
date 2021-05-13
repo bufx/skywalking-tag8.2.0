@@ -102,7 +102,13 @@
         </Loggers>
     </Configuration>
 ```
-* When you use `-javaagent` to active the sky-walking tracer, log4j2 will output **traceId**, if it existed. If the tracer is inactive, the output will be `TID: N/A`.
+* When you use `-javaagent` to active the SkyWalking tracer, log4j2 will output **traceId**, if it existed. If the tracer is inactive, the output will be `TID: N/A`.
+
+# Print SkyWalking context in your logs
+
+* Your only need to replace pattern `%traceId` with `%sw_ctx`.
+
+* When you use `-javaagent` to active the SkyWalking tracer, log4j2 will output `SW_CTX: [$serviceName,$instanceName,$traceId,$traceSegmentId,$spanId]`, if it existed. If the tracer is inactive, the output will be `SW_CTX: N/A`.
 
 # gRPC reporter
 
@@ -111,7 +117,9 @@ The gRPC report could forward the collected logs to SkyWalking OAP server, or [S
 * Add `GRPCLogClientAppender` in log4j2.xml
 
 ```xml
-    <GRPCLogClientAppender name="grpc-log"/>
+    <GRPCLogClientAppender name="grpc-log">
+        <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+    </GRPCLogClientAppender>
 ```
 
 *  Add config of the plugin or use default

@@ -4,7 +4,7 @@ Apache SkyWalking
 <img src="http://skywalking.apache.org/assets/logo.svg" alt="Sky Walking logo" height="90px" align="right" />
 
 **SkyWalking**: an APM(application performance monitor) system, especially designed for
-microservices, cloud native and container-based (Docker, Kubernetes, Mesos) architectures.
+microservices, cloud native and container-based architectures.
 
 [![GitHub stars](https://img.shields.io/github/stars/apache/skywalking.svg?style=for-the-badge&label=Stars&logo=github)](https://github.com/apache/skywalking)
 [![Twitter Follow](https://img.shields.io/twitter/follow/asfskywalking.svg?style=for-the-badge&label=Follow&logo=twitter)](https://twitter.com/AsfSkyWalking)
@@ -31,19 +31,19 @@ The core features are following.
 - Infrastructure(VM, network, disk etc.) monitoring
 - Collaboration across metrics, traces, and logs
 
-<img src="http://skywalking.apache.org/assets/frame-v8.jpg?u=20201105"/>
+<img src="https://skywalking.apache.org/images/SkyWalking_Architecture_20210424.png?t=20210424"/>
 
 SkyWalking supports to collect telemetry (metrics, traces, and logs) data from multiple sources
 and multiple formats,
 including
 1. Java, .NET Core, NodeJS, PHP, and Python auto-instrument agents.
 1. Go and C++ SDKs.
-1. LUA agent especially for Nginx, OpenResty.
+1. LUA agent especially for Nginx, OpenResty and Apache APISIX.
 1. Browser agent.
 1. Service Mesh Observability. Control panel and data panel. 
 1. Metrics system, including Prometheus, OpenTelemetry, Spring Sleuth(Micrometer), Zabbix.
 1. Logs.
-1. Zipkin v1/v2 and Jaeger gRPC format with limited topology and metrics analysis.(Experimental).
+1. Zipkin v1/v2 trace.(No Analysis)
 
 SkyWalking OAP is using the STAM(Streaming Topology Analysis Method) to analysis topology in the tracing based agent scenario 
 for better performance. Read [the paper of STAM](https://wu-sheng.github.io/STAM/) for more details.
@@ -92,7 +92,7 @@ Visit our [website](http://skywalking.apache.org/#users) to find the user page.
 <br/><br/>
 <img src="https://landscape.cncf.io/images/left-logo.svg" width="150"/>&nbsp;&nbsp;<img src="https://landscape.cncf.io/images/right-logo.svg" width="200"/>
 <br/><br/>
-SkyWalking enriches the <a href="https://landscape.cncf.io/landscape=observability-and-analysis&license=apache-license-2-0">CNCF CLOUD NATIVE Landscape.
+SkyWalking enriches the <a href="https://landscape.cncf.io/landscape=observability-and-analysis&license=apache-license-2-0">CNCF CLOUD NATIVE Landscape.</a>
 
 </p>
 

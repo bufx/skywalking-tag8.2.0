@@ -21,7 +21,7 @@
     <parent>
         <artifactId>apm</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>8.5.0-SNAPSHOT</version>
+        <version>8.6.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -62,17 +62,16 @@
         <graphql-java.version>8.0</graphql-java.version>
         <zookeeper.version>3.4.10</zookeeper.version>
         <netty-tcnative-boringssl-static.version>2.0.26.Final</netty-tcnative-boringssl-static.version>
-        <jetty.version>9.4.28.v20200408</jetty.version>
+        <jetty.version>9.4.40.v20210413</jetty.version>
         <h2.version>1.4.196</h2.version>
         <commons-dbcp.version>1.4</commons-dbcp.version>
         <commons-io.version>2.6</commons-io.version>
         <elasticsearch.version>6.3.2</elasticsearch.version>
         <joda-time.version>2.10.5</joda-time.version>
-        <kubernetes.version>10.0.0</kubernetes.version>
+        <kubernetes.version>11.0.0</kubernetes.version>
         <hikaricp.version>3.1.0</hikaricp.version>
         <zipkin.version>2.9.1</zipkin.version>
-        <caffeine.version>2.6.2</caffeine.version>
-        <okhttp.version>3.9.0</okhttp.version>
+        <okhttp.version>3.14.9</okhttp.version>
         <jackson-core.version>2.9.5</jackson-core.version>
         <jackson-annotations.version>2.9.5</jackson-annotations.version>
         <jackson-databind.version>2.9.5</jackson-databind.version>
@@ -85,7 +84,7 @@
         <maven-docker-plugin.version>0.30.0</maven-docker-plugin.version>
         <curator.version>4.0.1</curator.version>
         <curator-test.version>2.12.0</curator-test.version>
-        <etcd4j.version>2.17.0</etcd4j.version>
+        <etcd4j.version>2.18.0</etcd4j.version>
         <etcd.version>v3.2.3</etcd.version>
         <netty.version>4.1.42.Final</netty.version>
         <jackson-module-afterburner.version>2.9.5</jackson-module-afterburner.version>
@@ -362,11 +361,6 @@
                 <groupId>io.zipkin.zipkin2</groupId>
                 <artifactId>zipkin</artifactId>
                 <version>${zipkin.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.github.ben-manes.caffeine</groupId>
-                <artifactId>caffeine</artifactId>
-                <version>${caffeine.version}</version>
             </dependency>
             <!-- -->
             <dependency>

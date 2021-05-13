@@ -22,7 +22,7 @@ metrics based on the tracing data.
 * HTTP Client
   * [Feign](https://github.com/OpenFeign/feign) 9.x
   * [Netflix Spring Cloud Feign](https://github.com/spring-cloud/spring-cloud-openfeign) 1.1.x -> 2.x
-  * [Okhttp](https://github.com/square/okhttp) 3.x
+  * [Okhttp](https://github.com/square/okhttp) 3.x -> 4.x
   * [Apache httpcomponent HttpClient](http://hc.apache.org/) 2.0 -> 3.1, 4.2, 4.3
   * [Spring RestTemplete](https://github.com/spring-projects/spring-framework) 4.x
   * [Jetty Client](http://www.eclipse.org/jetty/) 9
@@ -30,7 +30,7 @@ metrics based on the tracing data.
   * [AsyncHttpClient](https://github.com/AsyncHttpClient/async-http-client) 2.x
   * JRE HttpURLConnection (Optional²)
 * HTTP Gateway
-  * [Spring Cloud Gateway](https://spring.io/projects/spring-cloud-gateway) 2.0.2.RELEASE -> 2.2.x.RELEASE (Optional²)
+  * [Spring Cloud Gateway](https://spring.io/projects/spring-cloud-gateway) 2.0.2.RELEASE -> 3.x (Optional²)
 * JDBC
   * Mysql Driver 5.x, 6.x, 8.x
   * Oracle Driver (Optional¹)
@@ -58,7 +58,7 @@ metrics based on the tracing data.
   * [Apache CXF](https://github.com/apache/cxf) 3.x
 * MQ
   * [RocketMQ](https://github.com/apache/rocketmq) 4.x
-  * [Kafka](http://kafka.apache.org) 0.11.0.0 -> 2.6.1
+  * [Kafka](http://kafka.apache.org) 0.11.0.0 -> 2.8.0
   * [Spring-Kafka](https://github.com/spring-projects/spring-kafka) Spring Kafka Consumer 1.3.x -> 2.3.x (2.0.x and 2.1.x not tested and not recommended by [the official document](https://spring.io/projects/spring-kafka))
   * [ActiveMQ](https://github.com/apache/activemq) 5.10.0 -> 5.15.4
   * [RabbitMQ](https://www.rabbitmq.com/) 5.x
@@ -76,14 +76,15 @@ metrics based on the tracing data.
   * [Elasticsearch](https://github.com/elastic/elasticsearch)
     * [transport-client](https://github.com/elastic/elasticsearch/tree/v5.2.0/client/transport) 5.2.x-5.6.x
     * [transport-client](https://github.com/elastic/elasticsearch/tree/v6.7.1/client/transport) 6.7.1-6.8.4
+    * [transport-client](https://github.com/elastic/elasticsearch/tree/7.0/client/transport) 7.0.0-7.5.2
     * [rest-high-level-client](https://www.elastic.co/guide/en/elasticsearch/client/java-rest/6.7/index.html) 6.7.1-6.8.4
     * [rest-high-level-client](https://www.elastic.co/guide/en/elasticsearch/client/java-rest/7.0/java-rest-high.html) 7.0.0-7.5.2
-  * [Solr](https://github.com/apache/lucene-solr/)
-    * [SolrJ](https://github.com/apache/lucene-solr/tree/master/solr/solrj) 7.x
+  * [Solr](https://github.com/apache/solr/)
+    * [SolrJ](https://github.com/apache/solr/tree/main/solr/solrj) 7.x
   * [Cassandra](https://github.com/apache/cassandra) 3.x
     * [cassandra-java-driver](https://github.com/datastax/java-driver) 3.7.0-3.7.2
   * HBase
-    * [hbase-client](https://github.com/apache/hbase) HTable 1.x
+    * [hbase-client](https://github.com/apache/hbase) HTable 1.0.0-2.4.2
 * Service Discovery
   * [Netflix Eureka](https://github.com/Netflix/eureka)
 * Distributed Coordination
@@ -122,6 +123,8 @@ metrics based on the tracing data.
   * [log4j](https://github.com/apache/log4j) 2.x
   * [log4j2](https://github.com/apache/logging-log4j2) 1.2.x 
   * [logback](https://github.com/qos-ch/logback) 1.2.x
+* ORM
+  * [MyBatis](https://github.com/mybatis/mybatis-3) 3.4.x -> 3.5.x
 
 # Meter Plugins
 The meter plugin provides the advanced metrics collections, which are not a part of tracing.
