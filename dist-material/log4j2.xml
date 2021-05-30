@@ -30,7 +30,13 @@
             <Policies>
                 <SizeBasedTriggeringPolicy size="102400KB"/>
             </Policies>
-            <DefaultRolloverStrategy max="30"/>
+            <DefaultRolloverStrategy max="3">
+                <Delete basePath="${log-path}" maxDepth="1">
+                    <IfFileName glob="skywalking-oap-server-*.log">
+                        <IfLastModified age="7d" />
+                    </IfFileName>
+                </Delete>
+            </DefaultRolloverStrategy>
         </RollingFile>
     </Appenders>
     <Loggers>
