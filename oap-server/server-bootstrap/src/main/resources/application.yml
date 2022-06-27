@@ -128,8 +128,8 @@ storage:
     profileTaskQueryMaxSize: ${SW_STORAGE_ES_QUERY_PROFILE_TASK_SIZE:200}
     advanced: ${SW_STORAGE_ES_ADVANCED:""}
   elasticsearch7:
-    nameSpace: ${SW_NAMESPACE:"localhost_github_apm_8_2_0"}
-    clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:localhost:9200}
+    nameSpace: ${SW_NAMESPACE:"boms"}
+    clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:127.0.0.1:9200}
     protocol: ${SW_STORAGE_ES_HTTP_PROTOCOL:"http"}
     trustStorePath: ${SW_STORAGE_ES_SSL_JKS_PATH:""}
     trustStorePass: ${SW_STORAGE_ES_SSL_JKS_PASS:""}
@@ -140,8 +140,8 @@ storage:
     superDatasetDayStep: ${SW_SUPERDATASET_STORAGE_DAY_STEP:-1} # Represent the number of days in the super size dataset record index, the default value is the same as dayStep when the value is less than 0
     superDatasetIndexShardsFactor: ${SW_STORAGE_ES_SUPER_DATASET_INDEX_SHARDS_FACTOR:5} #  This factor provides more shards for the super data set, shards number = indexShardsNumber * superDatasetIndexShardsFactor. Also, this factor effects Zipkin and Jaeger traces.
     superDatasetIndexReplicasNumber: ${SW_STORAGE_ES_SUPER_DATASET_INDEX_REPLICAS_NUMBER:0} # Represent the replicas number in the super size dataset record index, the default value is 0.
-    user: ${SW_ES_USER:""}
-    password: ${SW_ES_PASSWORD:""}
+    user: ${SW_ES_USER:"elastic"}
+    password: ${SW_ES_PASSWORD:"Aa000000"}
     secretsManagementFile: ${SW_ES_SECRETS_MANAGEMENT_FILE:""} # Secrets management file in the properties format includes the username, password, which are managed by 3rd party tool.
     bulkActions: ${SW_STORAGE_ES_BULK_ACTIONS:1000} # Execute the async bulk record data every ${SW_STORAGE_ES_BULK_ACTIONS} requests
     syncBulkActions: ${SW_STORAGE_ES_SYNC_BULK_ACTIONS:50000} # Execute the sync bulk metrics data every ${SW_STORAGE_ES_SYNC_BULK_ACTIONS} requests
@@ -325,10 +325,10 @@ configuration:
     clusterName: ${SW_DCS_CLUSTER_NAME:SkyWalking}
     period: ${SW_DCS_PERIOD:20}
   apollo:
-    apolloMeta: ${SW_META_APOLLO:""}
-    apolloConfig: ${SW_CONFIG_APOLLO:"http://10.10.102.9:8080"}
+    apolloMeta: ${SW_META_APOLLO:"http://127.0.0.1:8080"}
+    apolloConfig: ${SW_CONFIG_APOLLO:""}
     apolloCluster: ${SW_CONFIG_APOLLO_CLUSTER:default}
-    apolloEnv: ${SW_CONFIG_APOLLO_ENV:""}
+    apolloEnv: ${SW_CONFIG_APOLLO_ENV:"DEV"}
     appId: ${SW_CONFIG_APOLLO_APP_ID:skywalking}
     period: ${SW_CONFIG_APOLLO_PERIOD:5}
   zookeeper:
