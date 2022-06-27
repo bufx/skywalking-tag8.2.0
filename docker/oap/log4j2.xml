@@ -17,11 +17,34 @@
   ~
   -->
 
-<Configuration status="INFO">
+<Configuration status="info">
+    <Properties>
+        <Property name="log-path">/skywalking/logs</Property>
+    </Properties>
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
             <PatternLayout charset="UTF-8" pattern="%d - %c -%-4r [%t] %-5p %x - %m%n"/>
         </Console>
+        <RollingFile name="RollingFile" fileName="${log-path}/skywalking-oap-server.log"
+          filePattern="${log-path}/skywalking-oap-server-%d{yyyy-MM-dd}-%i.log">
+            <PatternLayout>
+                <pattern>%d - %c - %L [%t] %-5p %x - %m%n</pattern>
+            </PatternLayout>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="10240KB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="10">
+                <Delete basePath="${log-path}" maxDepth="1">
+                    <IfFileName glob="skywalking-oap-server-*.log">
+                        <IfLastModified age="7d">
+                            <IfAny>
+                                <IfAccumulatedFileCount exceeds="5" />
+                            </IfAny>
+                        </IfLastModified>
+                    </IfFileName>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingFile>
     </Appenders>
     <Loggers>
         <logger name="org.eclipse.jetty" level="INFO"/>
@@ -29,8 +52,9 @@
         <logger name="org.elasticsearch.common.network.IfConfig" level="INFO"/>
         <logger name="io.grpc.netty" level="INFO"/>
         <logger name="org.apache.skywalking.oap.server.receiver.istio.telemetry" level="DEBUG"/>
-        <Root level="INFO">
+        <Root level="info">
             <AppenderRef ref="Console"/>
+            <AppenderRef ref="RollingFile"/>
         </Root>
     </Loggers>
 </Configuration>

@@ -1,0 +1,27 @@
+version: "3.0"
+services:
+  skywalking-oap:
+    image: skywalking/oap:${TAG}
+    container_name: skywalking-oap
+    restart: always
+    ports:
+      - 11800:11800
+      - 12800:12800
+    env_file:
+      - .env
+  skywalking-ui:
+    image: skywalking/ui:${TAG}
+    container_name: skywalking-ui
+    depends_on:
+      - skywalking-oap
+    restart: always
+    ports:
+      - 8080:8080
+    env_file:
+      - .env
+    networks:
+      - skywalking
+
+networks:
+  skywalking:
+    driver: bridge
