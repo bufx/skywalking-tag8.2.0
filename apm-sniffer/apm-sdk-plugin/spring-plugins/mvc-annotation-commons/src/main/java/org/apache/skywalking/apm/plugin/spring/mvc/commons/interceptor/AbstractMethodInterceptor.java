@@ -18,19 +18,28 @@
 
 package org.apache.skywalking.apm.plugin.spring.mvc.commons.interceptor;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.apache.skywalking.apm.agent.core.base64.Base64;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.SW8CarrierItem;
+import org.apache.skywalking.apm.agent.core.context.esb.EsbBody;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
+import org.apache.skywalking.apm.agent.core.logging.api.ILog;
+import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
@@ -54,6 +63,8 @@ import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.RESP
  * the abstract method interceptor
  */
 public abstract class AbstractMethodInterceptor implements InstanceMethodsAroundInterceptor {
+
+    private static final ILog LOGGER = LogManager.getLogger(AbstractMethodInterceptor.class);
 
     private static boolean IS_SERVLET_GET_STATUS_METHOD_EXIST;
     private static final String SERVLET_RESPONSE_CLASS = "javax.servlet.http.HttpServletResponse";
@@ -103,9 +114,33 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
             if (stackDepth == null) {
                 ContextCarrier contextCarrier = new ContextCarrier();
                 CarrierItem next = contextCarrier.items();
+
+                boolean hasAgentHeader = false;
+                Map<String, String> agentHeaderMap = new HashMap<>();
+
+                if (StringUtil.isEmpty(request.getHeader(SW8CarrierItem.HEADER_NAME))) {
+                    try {
+                        String body = (String) allArguments[0];
+                        EsbBody esbBody = new Gson().fromJson(body, EsbBody.class);
+                        if (esbBody.hasAgentHeader()) {
+                            String msgId = esbBody.getTransaction().getHeader().getSysHeader().getMsgId();
+                            String agentHeader = Base64.decode2UTFString(msgId);
+                            Type type = new TypeToken<Map<String, String>>() { }.getType();
+                            agentHeaderMap = new Gson().fromJson(agentHeader, type);
+                            hasAgentHeader = true;
+                        }
+                    } catch (Exception e) {
+                        LOGGER.info("Failed to get esbBody Information. Exception:{}", e);
+                    }
+                }
+
                 while (next.hasNext()) {
                     next = next.next();
-                    next.setHeadValue(request.getHeader(next.getHeadKey()));
+                    if (hasAgentHeader) {
+                        next.setHeadValue(agentHeaderMap.get(next.getHeadKey()));
+                    } else {
+                        next.setHeadValue(request.getHeader(next.getHeadKey()));
+                    }
                 }
 
                 AbstractSpan span = ContextManager.createEntrySpan(operationName, contextCarrier);
