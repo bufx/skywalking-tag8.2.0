@@ -28,12 +28,16 @@
                 <pattern>%d - %c - %L [%t] %-5p %x - %m%n</pattern>
             </PatternLayout>
             <Policies>
-                <SizeBasedTriggeringPolicy size="102400KB"/>
+                <SizeBasedTriggeringPolicy size="10240KB"/>
             </Policies>
-            <DefaultRolloverStrategy max="3">
+            <DefaultRolloverStrategy max="10">
                 <Delete basePath="${log-path}" maxDepth="1">
                     <IfFileName glob="skywalking-oap-server-*.log">
-                        <IfLastModified age="7d" />
+                        <IfLastModified age="7d">
+                            <IfAny>
+                                <IfAccumulatedFileCount exceeds="5" />
+                            </IfAny>
+                        </IfLastModified>
                     </IfFileName>
                 </Delete>
             </DefaultRolloverStrategy>
