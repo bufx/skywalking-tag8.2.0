@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.apm.agent.core.context.esb;
 
+import org.apache.skywalking.apm.util.StringUtil;
+
 public class EsbBody {
 
     private Transaction transaction;
@@ -30,7 +32,12 @@ public class EsbBody {
     }
 
     public void updateMsgId(String msgId) {
-        this.transaction.header.sysHeader.setMsgId(msgId);
+        String currentMsgId = this.transaction.header.sysHeader.getMsgId().split("-")[0];
+        this.transaction.header.sysHeader.setMsgId(StringUtil.join('-', currentMsgId, msgId));
+    }
+
+    public String getAgentHeader() {
+        return this.transaction.header.sysHeader.getMsgId().split("-")[1];
     }
 
     public boolean hasTransaction() {

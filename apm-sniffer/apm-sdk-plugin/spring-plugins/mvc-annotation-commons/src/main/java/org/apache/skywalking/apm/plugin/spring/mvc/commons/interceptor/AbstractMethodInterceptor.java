@@ -123,8 +123,7 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
                         String body = (String) allArguments[0];
                         EsbBody esbBody = new Gson().fromJson(body, EsbBody.class);
                         if (esbBody.hasAgentHeader()) {
-                            String msgId = esbBody.getTransaction().getHeader().getSysHeader().getMsgId();
-                            String agentHeader = Base64.decode2UTFString(msgId);
+                            String agentHeader = Base64.decode2UTFString(esbBody.getAgentHeader());
                             Type type = new TypeToken<Map<String, String>>() { }.getType();
                             agentHeaderMap = new Gson().fromJson(agentHeader, type);
                             hasAgentHeader = true;
