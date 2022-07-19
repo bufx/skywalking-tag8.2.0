@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+spring-resttemplate-4.x=org.apache.skywalking.apm.plugin.spring.resttemplate.sync.define.HttpEntityRequestCallbackInstrumentation
 spring-resttemplate-4.x=org.apache.skywalking.apm.plugin.spring.resttemplate.sync.define.RestTemplateInstrumentation
 spring-resttemplate-4.x=org.apache.skywalking.apm.plugin.spring.resttemplate.async.define.ResponseExtractorFutureInstrumentation
 spring-resttemplate-4.x=org.apache.skywalking.apm.plugin.spring.resttemplate.async.define.RestTemplateInstrumentation
