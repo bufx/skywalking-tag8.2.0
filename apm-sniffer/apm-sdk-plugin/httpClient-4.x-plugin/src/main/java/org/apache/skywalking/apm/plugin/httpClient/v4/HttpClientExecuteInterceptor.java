@@ -18,25 +18,40 @@
 
 package org.apache.skywalking.apm.plugin.httpClient.v4;
 
+import com.google.gson.Gson;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.util.EntityUtils;
+import org.apache.skywalking.apm.agent.core.base64.Base64;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.esb.EsbBody;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
+import org.apache.skywalking.apm.agent.core.logging.api.ILog;
+import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterceptor {
+
+    private static final ILog LOGGER = LogManager.getLogger(HttpClientExecuteInterceptor.class);
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
@@ -65,6 +80,28 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
         while (next.hasNext()) {
             next = next.next();
             httpRequest.setHeader(next.getHeadKey(), next.getHeadValue());
+        }
+
+        if (httpRequest instanceof HttpPost) {
+            HttpEntity httpEntity = ((HttpPost) httpRequest).getEntity();
+            String body = EntityUtils.toString(httpEntity, StandardCharsets.UTF_8);
+            try {
+                EsbBody esbBody = new Gson().fromJson(body, EsbBody.class);
+                if (esbBody.hasAgentHeader()) {
+                    Map<String, String> agentHeaderMap = new HashMap<>();
+                    next = contextCarrier.items();
+                    while (next.hasNext()) {
+                        next = next.next();
+                        agentHeaderMap.put(next.getHeadKey(), next.getHeadValue());
+                    }
+                    esbBody.updateMsgId(Base64.encode(new Gson().toJson(agentHeaderMap)));
+                    HttpEntityEnclosingRequest httpEntityEnclosingRequest = (HttpEntityEnclosingRequest) httpRequest;
+                    StringEntity stringEntity = new StringEntity(new Gson().toJson(esbBody));
+                    httpEntityEnclosingRequest.setEntity(stringEntity);
+                }
+            } catch (Exception e) {
+                LOGGER.info("Failed to get esbBody Information. Exception:{}", e);
+            }
         }
     }
 
