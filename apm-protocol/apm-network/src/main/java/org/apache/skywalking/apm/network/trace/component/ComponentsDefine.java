@@ -185,4 +185,6 @@ public class ComponentsDefine {
 
     public static final OfficialComponent THRIFT_CLIENT = new OfficialComponent(101, "thrift-client");
 
+    public static final OfficialComponent SUNLINERPC = new OfficialComponent(102, "SUNLINERPC");
+
 }
