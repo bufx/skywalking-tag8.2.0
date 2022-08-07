@@ -22,7 +22,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.apache.skywalking.apm.agent.core.base64.Base64;
-import org.apache.skywalking.apm.util.StringUtil;
 
 public class EsbBody {
 
@@ -31,22 +30,19 @@ public class EsbBody {
     public boolean hasAgentHeader() {
         return hasTransaction()
             && this.Transaction.hasHeader()
-            && this.Transaction.Header.hasSysHeader()
-            && this.Transaction.Header.sysHeader.hasMsgId();
+            && this.Transaction.Header.hasSysHeader();
     }
 
-    public String updateMsgId(String body, String newMsgId) {
+    public String updateMsgId(String body, String newAuthId) {
         JsonObject bodyJsonObject = JsonParser.parseString(body).getAsJsonObject();
         JsonObject sysHeaderJsonObject = bodyJsonObject.getAsJsonObject("Transaction").getAsJsonObject("Header").getAsJsonObject("sysHeader");
-        sysHeaderJsonObject.remove("msgId");
-
-        String oldMsgId = this.Transaction.Header.sysHeader.getMsgId().split("-")[0];
-        sysHeaderJsonObject.addProperty("msgId", StringUtil.join('-', oldMsgId, Base64.encode(newMsgId)));
+        sysHeaderJsonObject.remove("authId");
+        sysHeaderJsonObject.addProperty("authId", Base64.encode(newAuthId));
         return new Gson().toJson(bodyJsonObject);
     }
 
     public String getAgentHeader() {
-        return this.Transaction.Header.sysHeader.getMsgId().split("-")[1];
+        return this.Transaction.Header.sysHeader.getAuthId();
     }
 
     public boolean hasTransaction() {
@@ -94,18 +90,14 @@ public class EsbBody {
             }
 
             public static class SysHeader {
-                private String msgId;
+                private String authId;
 
-                public boolean hasMsgId() {
-                    return this.msgId != null;
+                public String getAuthId() {
+                    return authId;
                 }
 
-                public String getMsgId() {
-                    return msgId;
-                }
-
-                public void setMsgId(String msgId) {
-                    this.msgId = msgId;
+                public void setAuthId(String authId) {
+                    this.authId = authId;
                 }
 
             }
