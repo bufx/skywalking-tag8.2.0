@@ -34,7 +34,6 @@ import org.apache.http.StatusLine;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.util.EntityUtils;
-import org.apache.skywalking.apm.agent.core.base64.Base64;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -94,9 +93,8 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
                         next = next.next();
                         agentHeaderMap.put(next.getHeadKey(), next.getHeadValue());
                     }
-                    esbBody.updateMsgId(Base64.encode(new Gson().toJson(agentHeaderMap)));
                     HttpEntityEnclosingRequest httpEntityEnclosingRequest = (HttpEntityEnclosingRequest) httpRequest;
-                    StringEntity stringEntity = new StringEntity(new Gson().toJson(esbBody));
+                    StringEntity stringEntity = new StringEntity(esbBody.updateMsgId(body, new Gson().toJson(agentHeaderMap)));
                     httpEntityEnclosingRequest.setEntity(stringEntity);
                 }
             } catch (Exception e) {

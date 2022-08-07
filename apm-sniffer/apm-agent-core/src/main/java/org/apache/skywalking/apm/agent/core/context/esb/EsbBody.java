@@ -18,64 +18,63 @@
 
 package org.apache.skywalking.apm.agent.core.context.esb;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import org.apache.skywalking.apm.agent.core.base64.Base64;
 import org.apache.skywalking.apm.util.StringUtil;
 
 public class EsbBody {
 
-    private Transaction transaction;
+    private Transaction Transaction;
 
     public boolean hasAgentHeader() {
         return hasTransaction()
-            && this.transaction.hasHeader()
-            && this.transaction.header.hasSysHeader()
-            && this.transaction.header.sysHeader.hasMsgId();
+            && this.Transaction.hasHeader()
+            && this.Transaction.Header.hasSysHeader()
+            && this.Transaction.Header.sysHeader.hasMsgId();
     }
 
-    public void updateMsgId(String msgId) {
-        String currentMsgId = this.transaction.header.sysHeader.getMsgId().split("-")[0];
-        this.transaction.header.sysHeader.setMsgId(StringUtil.join('-', currentMsgId, msgId));
+    public String updateMsgId(String body, String newMsgId) {
+        JsonObject bodyJsonObject = JsonParser.parseString(body).getAsJsonObject();
+        JsonObject sysHeaderJsonObject = bodyJsonObject.getAsJsonObject("Transaction").getAsJsonObject("Header").getAsJsonObject("sysHeader");
+        sysHeaderJsonObject.remove("msgId");
+
+        String oldMsgId = this.Transaction.Header.sysHeader.getMsgId().split("-")[0];
+        sysHeaderJsonObject.addProperty("msgId", StringUtil.join('-', oldMsgId, Base64.encode(newMsgId)));
+        return new Gson().toJson(bodyJsonObject);
     }
 
     public String getAgentHeader() {
-        return this.transaction.header.sysHeader.getMsgId().split("-")[1];
+        return this.Transaction.Header.sysHeader.getMsgId().split("-")[1];
     }
 
     public boolean hasTransaction() {
-        return this.transaction != null;
+        return this.Transaction != null;
     }
 
     public Transaction getTransaction() {
-        return transaction;
+        return Transaction;
     }
 
     public void setTransaction(Transaction transaction) {
-        this.transaction = transaction;
+        this.Transaction = transaction;
     }
 
     public static class Transaction {
 
-        private Header header;
-
-        private Object body;
+        private Header Header;
 
         public boolean hasHeader() {
-            return this.header != null;
+            return this.Header != null;
         }
 
         public Header getHeader() {
-            return header;
+            return Header;
         }
 
         public void setHeader(Header header) {
-            this.header = header;
-        }
-
-        public Object getBody() {
-            return body;
-        }
-
-        public void setBody(Object body) {
-            this.body = body;
+            this.Header = header;
         }
 
         public static class Header {
@@ -95,47 +94,10 @@ public class EsbBody {
             }
 
             public static class SysHeader {
-                private String ver;
-                private String pinIndex;
-                private String bizType;
-                private String authContext;
                 private String msgId;
-                private String clientCd;
 
                 public boolean hasMsgId() {
                     return this.msgId != null;
-                }
-
-                public String getVer() {
-                    return ver;
-                }
-
-                public void setVer(String ver) {
-                    this.ver = ver;
-                }
-
-                public String getPinIndex() {
-                    return pinIndex;
-                }
-
-                public void setPinIndex(String pinIndex) {
-                    this.pinIndex = pinIndex;
-                }
-
-                public String getBizType() {
-                    return bizType;
-                }
-
-                public void setBizType(String bizType) {
-                    this.bizType = bizType;
-                }
-
-                public String getAuthContext() {
-                    return authContext;
-                }
-
-                public void setAuthContext(String authContext) {
-                    this.authContext = authContext;
                 }
 
                 public String getMsgId() {
@@ -146,13 +108,6 @@ public class EsbBody {
                     this.msgId = msgId;
                 }
 
-                public String getClientCd() {
-                    return clientCd;
-                }
-
-                public void setClientCd(String clientCd) {
-                    this.clientCd = clientCd;
-                }
             }
 
         }

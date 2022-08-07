@@ -24,7 +24,6 @@ import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.skywalking.apm.agent.core.base64.Base64;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.esb.EsbBody;
@@ -61,9 +60,9 @@ public class HttpEntityRequestCallbackInterceptor implements InstanceMethodsArou
                     next = next.next();
                     agentHeaderMap.put(next.getHeadKey(), next.getHeadValue());
                 }
-                esbBody.updateMsgId(Base64.encode(new Gson().toJson(agentHeaderMap)));
                 byteArrayOutputStream.reset();
-                byteArrayOutputStream.write(new Gson().toJson(esbBody).getBytes(StandardCharsets.UTF_8));
+                byteArrayOutputStream.write(esbBody.updateMsgId(body, new Gson().toJson(agentHeaderMap))
+                    .getBytes(StandardCharsets.UTF_8));
             }
         } catch (Exception e) {
             return ret;
