@@ -21,7 +21,6 @@ package org.apache.skywalking.apm.plugin.sunlinerpc;
 import cn.sunline.edsp.midware.rpc.core.Bead;
 import java.lang.reflect.Method;
 import java.util.Map;
-import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
@@ -41,9 +40,8 @@ public class SunLineRpcConvertProcessorInterceptor implements InstanceMethodsAro
         String operationName = parameters.get("remote_server");
         String serviceId = parameters.get("serviceId");
         ContextCarrier contextCarrier = new ContextCarrier();
-        CarrierItem next = contextCarrier.items();
 
-        AbstractSpan span = ContextManager.createEntrySpan(operationName, contextCarrier);
+        AbstractSpan span = ContextManager.createEntrySpan(generateRequestURL(operationName, serviceId), contextCarrier);
 
         Tags.URL.set(span, generateRequestURL(operationName, serviceId));
         span.setComponent(ComponentsDefine.SUNLINERPC);
@@ -77,6 +75,7 @@ public class SunLineRpcConvertProcessorInterceptor implements InstanceMethodsAro
     private String generateRequestURL(String operationName, String serviceId) {
         StringBuilder requestURL = new StringBuilder();
         requestURL.append(operationName);
+        requestURL.append("/");
         requestURL.append(serviceId);
         return requestURL.toString();
     }

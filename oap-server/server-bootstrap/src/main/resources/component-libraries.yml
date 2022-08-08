@@ -335,6 +335,9 @@ thrift-server:
 thrift-client:
   id: 101
   languages: Java
+SUNLINERPC:
+  id: 102
+  languages: Java
 
 
 # .NET/.NET Core components
