@@ -22,6 +22,9 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.apache.skywalking.apm.agent.core.base64.Base64;
+import org.apache.skywalking.apm.agent.core.context.esb.EsbBody.Transaction;
+import org.apache.skywalking.apm.agent.core.context.esb.EsbBody.Transaction.Header;
+import org.apache.skywalking.apm.agent.core.context.esb.EsbBody.Transaction.Header.SysHeader;
 
 public class EsbBody {
 
@@ -45,6 +48,15 @@ public class EsbBody {
         return this.Transaction.Header.sysHeader.getAuthId();
     }
 
+    public void setAgentHeader(String agentHeader) {
+        SysHeader sysHeader = new SysHeader();
+        sysHeader.setAuthId(agentHeader);
+        Header header = new Header();
+        header.setSysHeader(sysHeader);
+        Transaction transaction = new Transaction();
+        transaction.setHeader(header);
+        this.setTransaction(transaction);
+    }
     public boolean hasTransaction() {
         return this.Transaction != null;
     }

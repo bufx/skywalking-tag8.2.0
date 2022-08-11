@@ -35,6 +35,7 @@ import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.SW8CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.esb.EsbBody;
+import org.apache.skywalking.apm.agent.core.context.esb.EsbCentersReqDTO;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
@@ -46,6 +47,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import org.apache.skywalking.apm.agent.core.util.CollectionUtil;
 import org.apache.skywalking.apm.agent.core.util.MethodUtil;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+import org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.EnhanceRequireObjectCache;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.RequestHolder;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.ResponseHolder;
@@ -120,8 +122,15 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
 
                 if (StringUtil.isEmpty(request.getHeader(SW8CarrierItem.HEADER_NAME))) {
                     try {
-                        String body = (String) allArguments[0];
-                        EsbBody esbBody = new Gson().fromJson(body, EsbBody.class);
+                        Object argument = allArguments[0];
+                        LOGGER.info("argument:{}", argument);
+                        EsbBody esbBody = new EsbBody();
+                        if (Constants.ESB_CENTERS_REQ_DTO.equals(argument.getClass().getName())) {
+                            EsbCentersReqDTO esbCentersReqDTO = new Gson().fromJson(new Gson().toJson(argument), EsbCentersReqDTO.class);
+                            esbBody.setAgentHeader(esbCentersReqDTO.getAuthId());
+                        } else {
+                            esbBody = new Gson().fromJson(argument.toString(), EsbBody.class);
+                        }
                         if (esbBody.hasAgentHeader()) {
                             String agentHeader = Base64.decode2UTFString(esbBody.getAgentHeader());
                             Type type = new TypeToken<Map<String, String>>() { }.getType();
