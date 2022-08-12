@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.plugin.spring.resttemplate.sync;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import java.io.ByteArrayOutputStream;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
@@ -51,7 +52,8 @@ public class HttpEntityRequestCallbackInterceptor implements InstanceMethodsArou
         ByteArrayOutputStream byteArrayOutputStream = (ByteArrayOutputStream) clientHttpRequest.getBody();
         String body = byteArrayOutputStream.toString();
         try {
-            EsbBody esbBody = new Gson().fromJson(body, EsbBody.class);
+            Gson gson = new GsonBuilder().serializeNulls().create();
+            EsbBody esbBody = gson.fromJson(body, EsbBody.class);
             if (esbBody.hasAgentHeader()) {
                 Map<String, String> agentHeaderMap = new HashMap<>();
                 ContextCarrier contextCarrier = RestTemplateRuntimeContextHelper.getContextCarrier();

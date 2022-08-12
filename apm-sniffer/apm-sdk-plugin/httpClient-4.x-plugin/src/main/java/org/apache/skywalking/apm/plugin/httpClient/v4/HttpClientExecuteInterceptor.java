@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.plugin.httpClient.v4;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -85,7 +86,8 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
             HttpEntity httpEntity = ((HttpPost) httpRequest).getEntity();
             String body = EntityUtils.toString(httpEntity, StandardCharsets.UTF_8);
             try {
-                EsbBody esbBody = new Gson().fromJson(body, EsbBody.class);
+                Gson gson = new GsonBuilder().serializeNulls().create();
+                EsbBody esbBody = gson.fromJson(body, EsbBody.class);
                 if (esbBody.hasAgentHeader()) {
                     Map<String, String> agentHeaderMap = new HashMap<>();
                     next = contextCarrier.items();
