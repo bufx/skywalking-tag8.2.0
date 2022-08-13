@@ -19,10 +19,10 @@
 package org.apache.skywalking.apm.agent.core.context.esb;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.apache.skywalking.apm.agent.core.base64.Base64;
-import org.apache.skywalking.apm.agent.core.context.esb.EsbBody.Transaction;
 import org.apache.skywalking.apm.agent.core.context.esb.EsbBody.Transaction.Header;
 import org.apache.skywalking.apm.agent.core.context.esb.EsbBody.Transaction.Header.SysHeader;
 
@@ -41,7 +41,8 @@ public class EsbBody {
         JsonObject sysHeaderJsonObject = bodyJsonObject.getAsJsonObject("Transaction").getAsJsonObject("Header").getAsJsonObject("sysHeader");
         sysHeaderJsonObject.remove("authId");
         sysHeaderJsonObject.addProperty("authId", Base64.encode(newAuthId));
-        return new Gson().toJson(bodyJsonObject);
+        Gson gson = new GsonBuilder().serializeNulls().create();
+        return gson.toJson(bodyJsonObject);
     }
 
     public String getAgentHeader() {
