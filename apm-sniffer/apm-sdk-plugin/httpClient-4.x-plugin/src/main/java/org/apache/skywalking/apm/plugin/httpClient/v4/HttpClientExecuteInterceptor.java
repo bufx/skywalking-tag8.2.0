@@ -96,7 +96,7 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
                         agentHeaderMap.put(next.getHeadKey(), next.getHeadValue());
                     }
                     HttpEntityEnclosingRequest httpEntityEnclosingRequest = (HttpEntityEnclosingRequest) httpRequest;
-                    StringEntity stringEntity = new StringEntity(esbBody.updateMsgId(body, new Gson().toJson(agentHeaderMap)));
+                    StringEntity stringEntity = new StringEntity(esbBody.updateTraceContext(body, new Gson().toJson(agentHeaderMap)));
                     httpEntityEnclosingRequest.setEntity(stringEntity);
                 }
             } catch (Exception e) {

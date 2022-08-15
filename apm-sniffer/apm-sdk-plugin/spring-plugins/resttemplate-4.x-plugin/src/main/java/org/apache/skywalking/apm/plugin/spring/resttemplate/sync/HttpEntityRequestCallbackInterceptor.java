@@ -63,7 +63,7 @@ public class HttpEntityRequestCallbackInterceptor implements InstanceMethodsArou
                     agentHeaderMap.put(next.getHeadKey(), next.getHeadValue());
                 }
                 byteArrayOutputStream.reset();
-                byteArrayOutputStream.write(esbBody.updateMsgId(body, new Gson().toJson(agentHeaderMap))
+                byteArrayOutputStream.write(esbBody.updateTraceContext(body, new Gson().toJson(agentHeaderMap))
                     .getBytes(StandardCharsets.UTF_8));
             }
         } catch (Exception e) {

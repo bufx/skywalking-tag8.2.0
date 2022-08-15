@@ -36,22 +36,22 @@ public class EsbBody {
             && this.Transaction.Header.hasSysHeader();
     }
 
-    public String updateMsgId(String body, String newAuthId) {
+    public String updateTraceContext(String body, String newTraceContext) {
         JsonObject bodyJsonObject = JsonParser.parseString(body).getAsJsonObject();
         JsonObject sysHeaderJsonObject = bodyJsonObject.getAsJsonObject("Transaction").getAsJsonObject("Header").getAsJsonObject("sysHeader");
-        sysHeaderJsonObject.remove("authId");
-        sysHeaderJsonObject.addProperty("authId", Base64.encode(newAuthId));
+        sysHeaderJsonObject.remove("traceContext");
+        sysHeaderJsonObject.addProperty("traceContext", Base64.encode(newTraceContext));
         Gson gson = new GsonBuilder().serializeNulls().create();
         return gson.toJson(bodyJsonObject);
     }
 
     public String getAgentHeader() {
-        return this.Transaction.Header.sysHeader.getAuthId();
+        return this.Transaction.Header.sysHeader.getTraceContext();
     }
 
     public void setAgentHeader(String agentHeader) {
         SysHeader sysHeader = new SysHeader();
-        sysHeader.setAuthId(agentHeader);
+        sysHeader.setTraceContext(agentHeader);
         Header header = new Header();
         header.setSysHeader(sysHeader);
         Transaction transaction = new Transaction();
@@ -103,14 +103,14 @@ public class EsbBody {
             }
 
             public static class SysHeader {
-                private String authId;
+                private String traceContext;
 
-                public String getAuthId() {
-                    return authId;
+                public String getTraceContext() {
+                    return traceContext;
                 }
 
-                public void setAuthId(String authId) {
-                    this.authId = authId;
+                public void setTraceContext(String traceContext) {
+                    this.traceContext = traceContext;
                 }
 
             }
