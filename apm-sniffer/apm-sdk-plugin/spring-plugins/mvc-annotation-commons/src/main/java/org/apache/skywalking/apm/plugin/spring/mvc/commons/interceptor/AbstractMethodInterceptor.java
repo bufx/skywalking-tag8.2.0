@@ -127,7 +127,7 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
                         EsbBody esbBody = new EsbBody();
                         if (Constants.ESB_CENTERS_REQ_DTO.equals(argument.getClass().getName())) {
                             EsbCentersReqDTO esbCentersReqDTO = new Gson().fromJson(new Gson().toJson(argument), EsbCentersReqDTO.class);
-                            esbBody.setAgentHeader(esbCentersReqDTO.getAuthId());
+                            esbBody.setAgentHeader(esbCentersReqDTO.getTraceContext());
                         } else {
                             esbBody = new Gson().fromJson(argument.toString(), EsbBody.class);
                         }

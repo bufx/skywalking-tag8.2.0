@@ -22,8 +22,8 @@ public class EsbCentersReqDTO {
 
     private EsbTransactionReqDto transactionReqDto;
 
-    public String getAuthId() {
-        return this.transactionReqDto.esbHeaderReqDto.esbSysHeaderReqDto.authId;
+    public String getTraceContext() {
+        return this.transactionReqDto.esbHeaderReqDto.esbSysHeaderReqDto.traceContext;
     }
 
     public EsbTransactionReqDto getTransactionReqDto() {
@@ -58,14 +58,14 @@ public class EsbCentersReqDTO {
             }
 
             public static class EsbSysHeaderReqDto {
-                private String authId;
+                private String traceContext;
 
-                public String getAuthId() {
-                    return authId;
+                public String getTraceContext() {
+                    return traceContext;
                 }
 
-                public void setAuthId(String authId) {
-                    this.authId = authId;
+                public void setTraceContext(String traceContext) {
+                    this.traceContext = traceContext;
                 }
             }
 
