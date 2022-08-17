@@ -51,6 +51,12 @@ public class HttpEntityRequestCallbackInterceptor implements InstanceMethodsArou
         AbstractClientHttpRequest clientHttpRequest = (AbstractClientHttpRequest) httpRequest;
         ByteArrayOutputStream byteArrayOutputStream = (ByteArrayOutputStream) clientHttpRequest.getBody();
         String body = byteArrayOutputStream.toString();
+        String charset;
+        try {
+            charset = httpRequest.getHeaders().getContentType().getParameter("charset");
+        } catch (Exception e) {
+            charset = StandardCharsets.UTF_8.name();
+        }
         try {
             Gson gson = new GsonBuilder().serializeNulls().create();
             EsbBody esbBody = gson.fromJson(body, EsbBody.class);
@@ -64,7 +70,7 @@ public class HttpEntityRequestCallbackInterceptor implements InstanceMethodsArou
                 }
                 byteArrayOutputStream.reset();
                 byteArrayOutputStream.write(esbBody.updateTraceContext(body, new Gson().toJson(agentHeaderMap))
-                    .getBytes(StandardCharsets.UTF_8));
+                    .getBytes(charset));
             }
         } catch (Exception e) {
             return ret;

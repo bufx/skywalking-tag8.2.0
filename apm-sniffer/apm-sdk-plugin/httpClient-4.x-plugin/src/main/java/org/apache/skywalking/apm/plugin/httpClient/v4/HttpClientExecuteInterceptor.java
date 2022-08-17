@@ -84,7 +84,14 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
 
         if (httpRequest instanceof HttpPost) {
             HttpEntity httpEntity = ((HttpPost) httpRequest).getEntity();
-            String body = EntityUtils.toString(httpEntity, StandardCharsets.UTF_8);
+            String charset;
+            try {
+                charset = httpEntity.getContentType().getElements()[0].getParameter(0).getValue();
+            } catch (Exception e) {
+                LOGGER.info("No character set encoding was obtained. Default initialization is UTF-8");
+                charset = StandardCharsets.UTF_8.name();
+            }
+            String body = EntityUtils.toString(httpEntity, charset);
             try {
                 Gson gson = new GsonBuilder().serializeNulls().create();
                 EsbBody esbBody = gson.fromJson(body, EsbBody.class);
@@ -96,7 +103,7 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
                         agentHeaderMap.put(next.getHeadKey(), next.getHeadValue());
                     }
                     HttpEntityEnclosingRequest httpEntityEnclosingRequest = (HttpEntityEnclosingRequest) httpRequest;
-                    StringEntity stringEntity = new StringEntity(esbBody.updateTraceContext(body, new Gson().toJson(agentHeaderMap)));
+                    StringEntity stringEntity = new StringEntity(esbBody.updateTraceContext(body, new Gson().toJson(agentHeaderMap)), charset);
                     httpEntityEnclosingRequest.setEntity(stringEntity);
                 }
             } catch (Exception e) {
