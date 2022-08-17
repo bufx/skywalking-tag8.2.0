@@ -14,4 +14,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-sunlinerpc=org.apache.skywalking.apm.plugin.sunlinerpc.SunLineRpcConvertProcessorInterceptor
+sunlinerpc=org.apache.skywalking.apm.plugin.sunlinerpc.define.SunLineRpcConvertProcessorInstrumentation
