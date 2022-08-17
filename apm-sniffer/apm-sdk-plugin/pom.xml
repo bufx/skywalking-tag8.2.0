@@ -102,6 +102,7 @@
         <module>xxl-job-2.x-plugin</module>
         <module>thrift-plugin</module>
         <module>sunlinerpc-plugin</module>
+        <module>union-paygate-plugin</module>
     </modules>
     <packaging>pom</packaging>
 

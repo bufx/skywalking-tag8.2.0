@@ -187,4 +187,6 @@ public class ComponentsDefine {
 
     public static final OfficialComponent SUNLINERPC = new OfficialComponent(102, "SUNLINERPC");
 
+    public static final OfficialComponent UNION_PAYGATE = new OfficialComponent(103, "union-paygate");
+
 }

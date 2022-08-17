@@ -338,6 +338,9 @@ thrift-client:
 SUNLINERPC:
   id: 102
   languages: Java
+UNION_PAYGATE:
+  id: 103
+  languages: Java
 
 
 # .NET/.NET Core components
