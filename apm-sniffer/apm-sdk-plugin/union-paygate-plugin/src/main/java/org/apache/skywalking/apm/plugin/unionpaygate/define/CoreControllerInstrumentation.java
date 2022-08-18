@@ -28,41 +28,41 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsIn
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
-public class JsonContextResolverInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class CoreControllerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-	private static final String ENHANCE_CLASS = "com.csii.common.paygate.servlet.JsonContextResolver";
-	private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.unionpaygate.JsonContextResolverInterceptor";
-	private static final String METHOD_NAME = "creatContext";
+    private static final String ENHANCE_CLASS = "com.csii.pe.core.CoreControllerImpl";
+    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.unionpaygate.CoreControllerInterceptor";
+    private static final String METHOD_NAME = "execute";
 
-	@Override
-	protected ClassMatch enhanceClass() {
-		return byName(ENHANCE_CLASS);
-	}
+    @Override
+    protected ClassMatch enhanceClass() {
+        return byName(ENHANCE_CLASS);
+    }
 
-	@Override
-	public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-		return new ConstructorInterceptPoint[0];
-	}
+    @Override
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+        return new ConstructorInterceptPoint[0];
+    }
 
-	@Override
-	public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-		return new InstanceMethodsInterceptPoint[] {
-			new InstanceMethodsInterceptPoint() {
-				@Override
-				public ElementMatcher<MethodDescription> getMethodsMatcher() {
-					return named(METHOD_NAME);
-				}
+    @Override
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+        return new InstanceMethodsInterceptPoint[]{
+                new InstanceMethodsInterceptPoint() {
+                    @Override
+                    public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                        return named(METHOD_NAME);
+                    }
 
-				@Override
-				public String getMethodsInterceptor() {
-					return INTERCEPT_CLASS;
-				}
+                    @Override
+                    public String getMethodsInterceptor() {
+                        return INTERCEPT_CLASS;
+                    }
 
-				@Override
-				public boolean isOverrideArgs() {
-					return false;
-				}
-			}
-		};
-	}
+                    @Override
+                    public boolean isOverrideArgs() {
+                        return false;
+                    }
+                }
+        };
+    }
 }
