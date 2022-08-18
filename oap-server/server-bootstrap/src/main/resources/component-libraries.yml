@@ -338,7 +338,7 @@ thrift-client:
 SUNLINERPC:
   id: 102
   languages: Java
-UNION_PAYGATE:
+union-paygate:
   id: 103
   languages: Java
 
