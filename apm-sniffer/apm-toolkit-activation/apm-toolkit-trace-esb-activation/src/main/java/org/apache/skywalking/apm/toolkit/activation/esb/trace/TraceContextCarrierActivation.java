@@ -35,9 +35,11 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
  */
 public class TraceContextCarrierActivation extends ClassStaticMethodsEnhancePluginDefine {
 
-    public static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.toolkit.activation.esb.trace.TraceContextCarrierInterceptor";
     public static final String ENHANCE_CLASS = "org.apache.skywalking.apm.toolkit.trace.esb.TraceContextCarrier";
+    public static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.toolkit.activation.esb.trace.TraceContextCarrierInterceptor";
     public static final String ENHANCE_METHOD = "traceContext";
+    public static final String DOWN_ESB_DOMAIN_INTERCEPT_CLASS = "org.apache.skywalking.apm.toolkit.activation.esb.trace.DownEsbDomainInterceptor";
+    public static final String DOWN_ESB_DOMAIN_ENHANCE_METHOD = "downEsbDomain";
 
     /**
      * @return the target class, which needs active.
@@ -63,6 +65,22 @@ public class TraceContextCarrierActivation extends ClassStaticMethodsEnhancePlug
                 @Override
                 public String getMethodsInterceptor() {
                     return INTERCEPT_CLASS;
+                }
+
+                @Override
+                public boolean isOverrideArgs() {
+                    return false;
+                }
+            },
+            new StaticMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named(DOWN_ESB_DOMAIN_ENHANCE_METHOD);
+                }
+
+                @Override
+                public String getMethodsInterceptor() {
+                    return DOWN_ESB_DOMAIN_INTERCEPT_CLASS;
                 }
 
                 @Override

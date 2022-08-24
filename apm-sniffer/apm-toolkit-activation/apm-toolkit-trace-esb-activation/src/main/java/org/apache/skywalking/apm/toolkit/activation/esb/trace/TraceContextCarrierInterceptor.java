@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.toolkit.activation.esb.trace;
 
+import com.google.gson.JsonObject;
 import org.apache.http.HttpHost;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URIUtils;
@@ -33,8 +34,6 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.StaticMet
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
 
 public class TraceContextCarrierInterceptor implements StaticMethodsAroundInterceptor {
 
@@ -60,10 +59,10 @@ public class TraceContextCarrierInterceptor implements StaticMethodsAroundInterc
             SpanLayer.asHttp(span);
 
             CarrierItem next = contextCarrier.items();
-            Map<String, String> traceContextCarrierMap = new HashMap<>();
+            JsonObject traceContextCarrierMap = new JsonObject();
             while (next.hasNext()) {
                 next = next.next();
-                traceContextCarrierMap.put(next.getHeadKey(), next.getHeadValue());
+                traceContextCarrierMap.addProperty(next.getHeadKey(), next.getHeadValue());
             }
             result.defineReturnValue(Base64.encode(traceContextCarrierMap.toString()));
         }

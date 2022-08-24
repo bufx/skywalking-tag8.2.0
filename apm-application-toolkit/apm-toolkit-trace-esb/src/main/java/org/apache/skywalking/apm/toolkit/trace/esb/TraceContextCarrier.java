@@ -33,4 +33,6 @@ public class TraceContextCarrier {
     public static String traceContext(Object obj) {
         return "";
     }
+
+    public static void downEsbDomain(Object obj) { }
 }
