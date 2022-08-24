@@ -16,25 +16,16 @@
   ~
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <parent>
-        <artifactId>apm</artifactId>
-        <groupId>org.apache.skywalking</groupId>
-        <version>8.2.0</version>
-    </parent>
-    <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<parent>
     <artifactId>apm-application-toolkit</artifactId>
-    <packaging>pom</packaging>
+    <groupId>org.apache.skywalking</groupId>
+    <version>8.2.0</version>
+</parent>
+<modelVersion>4.0.0</modelVersion>
 
-    <modules>
-        <module>apm-toolkit-log4j-1.x</module>
-        <module>apm-toolkit-log4j-2.x</module>
-        <module>apm-toolkit-logback-1.x</module>
-        <module>apm-toolkit-opentracing</module>
-        <module>apm-toolkit-trace</module>
-        <module>apm-toolkit-meter</module>
-        <module>apm-toolkit-micrometer-registry</module>
-        <module>apm-toolkit-kafka</module>
-        <module>apm-toolkit-trace-esb</module>
-    </modules>
+<artifactId>apm-toolkit-trace-esb</artifactId>
+<packaging>jar</packaging>
+
+<url>http://maven.apache.org</url>
 </project>
