@@ -35,6 +35,5 @@
         <module>apm-toolkit-meter</module>
         <module>apm-toolkit-micrometer-registry</module>
         <module>apm-toolkit-kafka</module>
-        <module>apm-toolkit-trace-esb-reflection</module>
     </modules>
 </project>
