@@ -18,8 +18,6 @@
 
 package org.apache.skywalking.apm.plugin.spring.mvc.commons.interceptor;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import org.apache.skywalking.apm.agent.core.base64.Base64;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
@@ -45,7 +43,6 @@ import org.apache.skywalking.apm.plugin.spring.mvc.commons.exception.ServletResp
 import org.apache.skywalking.apm.util.StringUtil;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -125,8 +122,11 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
                         Method invokeMethod = findInvokeMethod(aObject);
                         Object response = invokeMethod.invoke(aObject, allArguments[0]);
                         String agentHeader = Base64.decode2UTFString(response.toString());
-                        Type type = new TypeToken<Map<String, String>>() { }.getType();
-                        agentHeaderMap = new Gson().fromJson(agentHeader, type);
+                        String[] traceContextArray = agentHeader.substring(1, agentHeader.length() - 1).split(",");
+                        for (String traceContext : traceContextArray) {
+                            String[] entry = traceContext.split("=", 2);
+                            agentHeaderMap.put(entry[0].trim(), entry[1].trim());
+                        }
                         hasAgentHeader = true;
                     } catch (Exception e) {
                         LOGGER.info("Failed to get esbBody Information. Exception:{}", e);

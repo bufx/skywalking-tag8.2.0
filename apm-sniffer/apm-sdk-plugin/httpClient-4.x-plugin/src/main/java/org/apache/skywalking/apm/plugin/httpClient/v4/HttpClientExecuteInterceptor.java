@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.plugin.httpClient.v4;
 
-import com.google.gson.Gson;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
@@ -79,12 +78,10 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
         if (httpRequest instanceof HttpPost) {
             HttpPost httpPost = (HttpPost) httpRequest;
 
-            String traceContext = new Gson().toJson(agentHeaderMap);
-
             Class aClass = Class.forName("com.buubiu.trace.EsbDomain");
             Object aObject = aClass.newInstance();
             Method invokeMethod = findInvokeMethod(aObject);
-            Object response = invokeMethod.invoke(aObject, httpPost, Base64.encode(traceContext));
+            Object response = invokeMethod.invoke(aObject, httpPost, Base64.encode(agentHeaderMap.toString()));
 
             HttpEntityEnclosingRequest httpEntityEnclosingRequest = (HttpEntityEnclosingRequest) httpRequest;
             httpEntityEnclosingRequest.setEntity((StringEntity) response);
