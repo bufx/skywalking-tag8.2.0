@@ -20,22 +20,11 @@ package org.apache.skywalking.apm.plugin.spring.mvc.commons.interceptor;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import java.lang.reflect.Method;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import org.apache.skywalking.apm.agent.core.base64.Base64;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.SW8CarrierItem;
-import org.apache.skywalking.apm.agent.core.context.esb.EsbBody;
-import org.apache.skywalking.apm.agent.core.context.esb.EsbCentersReqDTO;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
@@ -47,14 +36,24 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import org.apache.skywalking.apm.agent.core.util.CollectionUtil;
 import org.apache.skywalking.apm.agent.core.util.MethodUtil;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
-import org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.EnhanceRequireObjectCache;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.RequestHolder;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.ResponseHolder;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.SpringMVCPluginConfig;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.exception.IllegalMethodStackDepthException;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.exception.ServletResponseNotFoundException;
+import org.apache.skywalking.apm.toolkit.trace.esb.reflection.ApmEsbSuper;
 import org.apache.skywalking.apm.util.StringUtil;
+
+import java.lang.reflect.Method;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.CONTROLLER_METHOD_STACK_DEPTH;
 import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.FORWARD_REQUEST_FLAG;
@@ -122,21 +121,17 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
 
                 if (StringUtil.isEmpty(request.getHeader(SW8CarrierItem.HEADER_NAME))) {
                     try {
-                        Object argument = allArguments[0];
-                        LOGGER.info("argument:{}", argument);
-                        EsbBody esbBody = new EsbBody();
-                        if (Constants.ESB_CENTERS_REQ_DTO.equals(argument.getClass().getName())) {
-                            EsbCentersReqDTO esbCentersReqDTO = new Gson().fromJson(new Gson().toJson(argument), EsbCentersReqDTO.class);
-                            esbBody.setAgentHeader(esbCentersReqDTO.getTraceContext());
-                        } else {
-                            esbBody = new Gson().fromJson(argument.toString(), EsbBody.class);
-                        }
-                        if (esbBody.hasAgentHeader()) {
-                            String agentHeader = Base64.decode2UTFString(esbBody.getAgentHeader());
-                            Type type = new TypeToken<Map<String, String>>() { }.getType();
-                            agentHeaderMap = new Gson().fromJson(agentHeader, type);
-                            hasAgentHeader = true;
-                        }
+
+                        Class<ApmEsbSuper> apmEsbSuperClass = ApmEsbSuper.class;
+                        Method down = apmEsbSuperClass.getMethod("down", Object.class);
+                        Class aClass = Class.forName("com.buubiu.trace.EsbDomain");
+                        Object aObject = aClass.newInstance();
+                        Object invoke = down.invoke(aObject, allArguments[0]);
+                        String agentHeader = Base64.decode2UTFString(invoke.toString());
+                        Type type = new TypeToken<Map<String, String>>() { }.getType();
+                        agentHeaderMap = new Gson().fromJson(agentHeader, type);
+                        hasAgentHeader = true;
+
                     } catch (Exception e) {
                         LOGGER.info("Failed to get esbBody Information. Exception:{}", e);
                     }

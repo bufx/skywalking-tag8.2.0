@@ -19,14 +19,6 @@
 package org.apache.skywalking.apm.plugin.httpClient.v4;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import java.lang.reflect.Method;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
@@ -34,24 +26,26 @@ import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.util.EntityUtils;
+import org.apache.skywalking.apm.agent.core.base64.Base64;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.context.esb.EsbBody;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
-import org.apache.skywalking.apm.agent.core.logging.api.ILog;
-import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+import org.apache.skywalking.apm.toolkit.trace.esb.reflection.ApmEsbSuper;
+
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterceptor {
-
-    private static final ILog LOGGER = LogManager.getLogger(HttpClientExecuteInterceptor.class);
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
@@ -77,38 +71,24 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
         SpanLayer.asHttp(span);
 
         CarrierItem next = contextCarrier.items();
+        Map<String, String> agentHeaderMap = new HashMap<>();
         while (next.hasNext()) {
             next = next.next();
             httpRequest.setHeader(next.getHeadKey(), next.getHeadValue());
+            agentHeaderMap.put(next.getHeadKey(), next.getHeadValue());
         }
-
         if (httpRequest instanceof HttpPost) {
-            HttpEntity httpEntity = ((HttpPost) httpRequest).getEntity();
-            String charset;
-            try {
-                charset = httpEntity.getContentType().getElements()[0].getParameter(0).getValue();
-            } catch (Exception e) {
-                LOGGER.info("No character set encoding was obtained. Default initialization is UTF-8");
-                charset = StandardCharsets.UTF_8.name();
-            }
-            String body = EntityUtils.toString(httpEntity, charset);
-            try {
-                Gson gson = new GsonBuilder().serializeNulls().create();
-                EsbBody esbBody = gson.fromJson(body, EsbBody.class);
-                if (esbBody.hasAgentHeader()) {
-                    Map<String, String> agentHeaderMap = new HashMap<>();
-                    next = contextCarrier.items();
-                    while (next.hasNext()) {
-                        next = next.next();
-                        agentHeaderMap.put(next.getHeadKey(), next.getHeadValue());
-                    }
-                    HttpEntityEnclosingRequest httpEntityEnclosingRequest = (HttpEntityEnclosingRequest) httpRequest;
-                    StringEntity stringEntity = new StringEntity(esbBody.updateTraceContext(body, new Gson().toJson(agentHeaderMap)), charset);
-                    httpEntityEnclosingRequest.setEntity(stringEntity);
-                }
-            } catch (Exception e) {
-                LOGGER.info("Failed to get esbBody Information. Exception:{}", e);
-            }
+            HttpPost httpPost = (HttpPost) httpRequest;
+
+            String traceContext = new Gson().toJson(agentHeaderMap);
+
+            Class<ApmEsbSuper> apmEsbSuperClass = ApmEsbSuper.class;
+            Method up = apmEsbSuperClass.getMethod("up", Object.class, String.class);
+            Class aClass = Class.forName("com.buubiu.trace.EsbDomain");
+            Object aObject = aClass.newInstance();
+            Object invoke = up.invoke(aObject, httpPost, Base64.encode(traceContext));
+            HttpEntityEnclosingRequest httpEntityEnclosingRequest = (HttpEntityEnclosingRequest) httpRequest;
+            httpEntityEnclosingRequest.setEntity((StringEntity) invoke);
         }
     }
 
