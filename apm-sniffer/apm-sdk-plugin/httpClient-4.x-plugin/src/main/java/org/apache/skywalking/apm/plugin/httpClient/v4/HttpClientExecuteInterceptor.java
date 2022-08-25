@@ -37,7 +37,6 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
-import org.apache.skywalking.apm.toolkit.trace.esb.reflection.ApmEsbSuper;
 
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
@@ -82,13 +81,13 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
 
             String traceContext = new Gson().toJson(agentHeaderMap);
 
-            Class<ApmEsbSuper> apmEsbSuperClass = ApmEsbSuper.class;
-            Method up = apmEsbSuperClass.getMethod("up", Object.class, String.class);
             Class aClass = Class.forName("com.buubiu.trace.EsbDomain");
             Object aObject = aClass.newInstance();
-            Object invoke = up.invoke(aObject, httpPost, Base64.encode(traceContext));
+            Method invokeMethod = findInvokeMethod(aObject);
+            Object response = invokeMethod.invoke(aObject, httpPost, Base64.encode(traceContext));
+
             HttpEntityEnclosingRequest httpEntityEnclosingRequest = (HttpEntityEnclosingRequest) httpRequest;
-            httpEntityEnclosingRequest.setEntity((StringEntity) invoke);
+            httpEntityEnclosingRequest.setEntity((StringEntity) response);
         }
     }
 
@@ -155,5 +154,24 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
     private int port(HttpHost httpHost) {
         int port = httpHost.getPort();
         return port > 0 ? port : "https".equals(httpHost.getSchemeName().toLowerCase()) ? 443 : 80;
+    }
+
+    public Method findInvokeMethod(Object object) {
+        Method invokeMethod = null;
+        Method[] methods = object.getClass().getDeclaredMethods();
+        if (methods != null && methods.length > 0) {
+            for (Method m : methods) {
+                try {
+                    Class<?>[] clazzs = m.getParameterTypes();
+                    if (m.getName().equals("up") && clazzs.length == 2) {
+                        invokeMethod = m;
+                        break;
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return invokeMethod;
     }
 }

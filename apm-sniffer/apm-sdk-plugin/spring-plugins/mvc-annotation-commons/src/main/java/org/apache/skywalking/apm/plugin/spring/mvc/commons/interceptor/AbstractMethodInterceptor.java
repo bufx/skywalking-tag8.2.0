@@ -42,7 +42,6 @@ import org.apache.skywalking.apm.plugin.spring.mvc.commons.ResponseHolder;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.SpringMVCPluginConfig;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.exception.IllegalMethodStackDepthException;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.exception.ServletResponseNotFoundException;
-import org.apache.skywalking.apm.toolkit.trace.esb.reflection.ApmEsbSuper;
 import org.apache.skywalking.apm.util.StringUtil;
 
 import java.lang.reflect.Method;
@@ -121,17 +120,14 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
 
                 if (StringUtil.isEmpty(request.getHeader(SW8CarrierItem.HEADER_NAME))) {
                     try {
-
-                        Class<ApmEsbSuper> apmEsbSuperClass = ApmEsbSuper.class;
-                        Method down = apmEsbSuperClass.getMethod("down", Object.class);
                         Class aClass = Class.forName("com.buubiu.trace.EsbDomain");
                         Object aObject = aClass.newInstance();
-                        Object invoke = down.invoke(aObject, allArguments[0]);
-                        String agentHeader = Base64.decode2UTFString(invoke.toString());
+                        Method invokeMethod = findInvokeMethod(aObject);
+                        Object response = invokeMethod.invoke(aObject, allArguments[0]);
+                        String agentHeader = Base64.decode2UTFString(response.toString());
                         Type type = new TypeToken<Map<String, String>>() { }.getType();
                         agentHeaderMap = new Gson().fromJson(agentHeader, type);
                         hasAgentHeader = true;
-
                     } catch (Exception e) {
                         LOGGER.info("Failed to get esbBody Information. Exception:{}", e);
                     }
@@ -278,5 +274,24 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
                 StringUtil.cut(tagValue, SpringMVCPluginConfig.Plugin.Http.HTTP_HEADERS_LENGTH_THRESHOLD) : tagValue;
             Tags.HTTP.HEADERS.set(span, tagValue);
         }
+    }
+
+    public Method findInvokeMethod(Object object) {
+        Method invokeMethod = null;
+        Method[] methods = object.getClass().getDeclaredMethods();
+        if (methods != null && methods.length > 0) {
+            for (Method m : methods) {
+                try {
+                    Class<?>[] clazzs = m.getParameterTypes();
+                    if (m.getName().equals("down") && clazzs.length == 1) {
+                        invokeMethod = m;
+                        break;
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return invokeMethod;
     }
 }
