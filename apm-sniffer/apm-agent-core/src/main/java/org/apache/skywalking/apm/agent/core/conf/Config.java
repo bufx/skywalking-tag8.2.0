@@ -124,6 +124,25 @@ public class Config {
          * Keep tracing even the backend is not available.
          */
         public static boolean KEEP_TRACING = false;
+
+        /**
+         * The package path of the probe interaction class at the business system
+         * auxiliary burial point, including the class name
+         */
+        @Length(50)
+        public static String ESB_TRACE_CLASS_PATH = "";
+
+        /**
+         * the probe interaction class send method name
+         */
+        @Length(50)
+        public static String ESB_TRACE_CLASS_SEND_METHOD = "";
+
+        /**
+         * the probe interaction class read method name
+         */
+        @Length(50)
+        public static String ESB_TRACE_CLASS_READ_METHOD = "";
     }
 
     public static class OsInfo {

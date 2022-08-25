@@ -26,6 +26,7 @@ import org.apache.http.StatusLine;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.skywalking.apm.agent.core.base64.Base64;
+import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -36,6 +37,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+import org.apache.skywalking.apm.util.StringUtil;
 
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
@@ -76,15 +78,17 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
             agentHeaderMap.put(next.getHeadKey(), next.getHeadValue());
         }
         if (httpRequest instanceof HttpPost) {
-            HttpPost httpPost = (HttpPost) httpRequest;
+            if (StringUtil.isNotEmpty(Config.Agent.ESB_TRACE_CLASS_PATH)) {
+                HttpPost httpPost = (HttpPost) httpRequest;
 
-            Class aClass = Class.forName("com.buubiu.trace.EsbDomain");
-            Object aObject = aClass.newInstance();
-            Method invokeMethod = findInvokeMethod(aObject);
-            Object response = invokeMethod.invoke(aObject, httpPost, Base64.encode(agentHeaderMap.toString()));
+                Class aClass = Class.forName(Config.Agent.ESB_TRACE_CLASS_PATH);
+                Object aObject = aClass.newInstance();
+                Method invokeMethod = findInvokeMethod(aObject);
+                Object response = invokeMethod.invoke(aObject, httpPost, Base64.encode(agentHeaderMap.toString()));
 
-            HttpEntityEnclosingRequest httpEntityEnclosingRequest = (HttpEntityEnclosingRequest) httpRequest;
-            httpEntityEnclosingRequest.setEntity((StringEntity) response);
+                HttpEntityEnclosingRequest httpEntityEnclosingRequest = (HttpEntityEnclosingRequest) httpRequest;
+                httpEntityEnclosingRequest.setEntity((StringEntity) response);
+            }
         }
     }
 
@@ -160,7 +164,7 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
             for (Method m : methods) {
                 try {
                     Class<?>[] clazzs = m.getParameterTypes();
-                    if (m.getName().equals("up") && clazzs.length == 2) {
+                    if (m.getName().equals(Config.Agent.ESB_TRACE_CLASS_SEND_METHOD) && clazzs.length == 2) {
                         invokeMethod = m;
                         break;
                     }

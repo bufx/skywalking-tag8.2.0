@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.plugin.spring.mvc.commons.interceptor;
 
 import org.apache.skywalking.apm.agent.core.base64.Base64;
+import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -117,17 +118,19 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
 
                 if (StringUtil.isEmpty(request.getHeader(SW8CarrierItem.HEADER_NAME))) {
                     try {
-                        Class aClass = Class.forName("com.buubiu.trace.EsbDomain");
-                        Object aObject = aClass.newInstance();
-                        Method invokeMethod = findInvokeMethod(aObject);
-                        Object response = invokeMethod.invoke(aObject, allArguments[0]);
-                        String agentHeader = Base64.decode2UTFString(response.toString());
-                        String[] traceContextArray = agentHeader.substring(1, agentHeader.length() - 1).split(",");
-                        for (String traceContext : traceContextArray) {
-                            String[] entry = traceContext.split("=", 2);
-                            agentHeaderMap.put(entry[0].trim(), entry[1].trim());
+                        if (StringUtil.isNotEmpty(Config.Agent.ESB_TRACE_CLASS_PATH)) {
+                            Class aClass = Class.forName(Config.Agent.ESB_TRACE_CLASS_PATH);
+                            Object aObject = aClass.newInstance();
+                            Method invokeMethod = findInvokeMethod(aObject);
+                            Object response = invokeMethod.invoke(aObject, allArguments[0]);
+                            String agentHeader = Base64.decode2UTFString(response.toString());
+                            String[] traceContextArray = agentHeader.substring(1, agentHeader.length() - 1).split(",");
+                            for (String traceContext : traceContextArray) {
+                                String[] entry = traceContext.split("=", 2);
+                                agentHeaderMap.put(entry[0].trim(), entry[1].trim());
+                            }
+                            hasAgentHeader = true;
                         }
-                        hasAgentHeader = true;
                     } catch (Exception e) {
                         LOGGER.info("Failed to get esbBody Information. Exception:{}", e);
                     }
@@ -283,7 +286,7 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
             for (Method m : methods) {
                 try {
                     Class<?>[] clazzs = m.getParameterTypes();
-                    if (m.getName().equals("down") && clazzs.length == 1) {
+                    if (m.getName().equals(Config.Agent.ESB_TRACE_CLASS_READ_METHOD) && clazzs.length == 1) {
                         invokeMethod = m;
                         break;
                     }
