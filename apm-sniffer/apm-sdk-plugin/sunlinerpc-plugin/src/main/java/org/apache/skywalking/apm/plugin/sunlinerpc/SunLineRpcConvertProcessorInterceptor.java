@@ -23,31 +23,42 @@ import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
+import org.apache.skywalking.apm.agent.core.logging.api.ILog;
+import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Map;
 
 public class SunLineRpcConvertProcessorInterceptor implements InstanceMethodsAroundInterceptor {
 
+    private static final ILog LOGGER = LogManager.getLogger(SunLineRpcConvertProcessorInterceptor.class);
+    public static final String BEAD = "cn.sunline.edsp.midware.rpc.core.Bead";
+
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
-        Object allArgument = allArguments[2];
-        if (Constants.BEAD.equals(allArgument.getClass().getName())) {
-            Bead bead = (Bead) allArgument;
-            Map<String, String> parameters = bead.getParameters();
-            String operationName = parameters.get("remote_server");
-            String serviceId = parameters.get("serviceId");
-            ContextCarrier contextCarrier = new ContextCarrier();
+        try {
+            Object allArgument = allArguments[2];
+            if (BEAD.equals(allArgument.getClass().getName())) {
+                Field parametersField = allArgument.getClass().getDeclaredField("parameters");
+                parametersField.setAccessible(true);
+                Map<String, String> parameters = (Map) parametersField.get(allArgument);
+                String operationName = parameters.get("remote_server");
+                String serviceId = parameters.get("serviceId");
+                ContextCarrier contextCarrier = new ContextCarrier();
 
-            AbstractSpan span = ContextManager.createEntrySpan(generateRequestURL(operationName, serviceId), contextCarrier);
+                AbstractSpan span = ContextManager.createEntrySpan(generateRequestURL(operationName, serviceId), contextCarrier);
 
-            Tags.URL.set(span, generateRequestURL(operationName, serviceId));
-            span.setComponent(ComponentsDefine.SUNLINERPC);
-            SpanLayer.asRPCFramework(span);
+                Tags.URL.set(span, generateRequestURL(operationName, serviceId));
+                span.setComponent(ComponentsDefine.SUNLINERPC);
+                SpanLayer.asRPCFramework(span);
+            }
+        } catch (Exception e) {
+            LOGGER.info("SunLineRpc processing reflection method error:. Exception:{}", e);
         }
     }
 
