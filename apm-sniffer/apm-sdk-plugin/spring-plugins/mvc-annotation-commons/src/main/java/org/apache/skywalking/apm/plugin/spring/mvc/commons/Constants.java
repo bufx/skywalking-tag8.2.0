@@ -39,6 +39,4 @@ public class Constants {
     public static final String WEBFLUX_REQUEST_KEY = "SW_WEBFLUX_REQUEST_KEY";
 
     public static final String CONTROLLER_METHOD_STACK_DEPTH = "SW_CONTROLLER_METHOD_STACK_DEPTH";
-
-    public static final String ESB_CENTERS_REQ_DTO = "cn.com.yusys.yusp.netloan.common.dto.jnesb.EsbCentersReqDTO";
 }
