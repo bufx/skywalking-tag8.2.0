@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.apm.plugin.sunlinerpc;
 
-import cn.sunline.edsp.midware.rpc.core.Bead;
-import java.lang.reflect.Method;
-import java.util.Map;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
@@ -31,21 +28,27 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceM
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
+import java.lang.reflect.Method;
+import java.util.Map;
+
 public class SunLineRpcConvertProcessorInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
-        Bead bead = (Bead) allArguments[2];
-        Map<String, String> parameters = bead.getParameters();
-        String operationName = parameters.get("remote_server");
-        String serviceId = parameters.get("serviceId");
-        ContextCarrier contextCarrier = new ContextCarrier();
+        Object allArgument = allArguments[2];
+        if (Constants.BEAD.equals(allArgument.getClass().getName())) {
+            Bead bead = (Bead) allArgument;
+            Map<String, String> parameters = bead.getParameters();
+            String operationName = parameters.get("remote_server");
+            String serviceId = parameters.get("serviceId");
+            ContextCarrier contextCarrier = new ContextCarrier();
 
-        AbstractSpan span = ContextManager.createEntrySpan(generateRequestURL(operationName, serviceId), contextCarrier);
+            AbstractSpan span = ContextManager.createEntrySpan(generateRequestURL(operationName, serviceId), contextCarrier);
 
-        Tags.URL.set(span, generateRequestURL(operationName, serviceId));
-        span.setComponent(ComponentsDefine.SUNLINERPC);
-        SpanLayer.asRPCFramework(span);
+            Tags.URL.set(span, generateRequestURL(operationName, serviceId));
+            span.setComponent(ComponentsDefine.SUNLINERPC);
+            SpanLayer.asRPCFramework(span);
+        }
     }
 
     @Override

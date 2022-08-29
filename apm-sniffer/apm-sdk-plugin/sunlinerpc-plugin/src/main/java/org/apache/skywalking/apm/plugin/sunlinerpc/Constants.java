@@ -16,22 +16,11 @@
  *
  */
 
-package cn.sunline.edsp.midware.rpc.core;
+package org.apache.skywalking.apm.plugin.sunlinerpc;
 
-import java.io.Serializable;
-
-public class RemotingCommand implements Serializable {
-    private static final long serialVersionUID = 5754030411111906540L;
-    private Object[] objects;
-
-    public RemotingCommand() {
-    }
-
-    public Object[] getObjects() {
-        return objects;
-    }
-
-    public void setObjects(Object[] objects) {
-        this.objects = objects;
-    }
+/**
+ * Interceptor class name constant variables
+ */
+public class Constants {
+    public static final String BEAD = "cn.sunline.edsp.midware.rpc.core.Bead";
 }

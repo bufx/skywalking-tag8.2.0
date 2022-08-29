@@ -16,7 +16,7 @@
  *
  */
 
-package cn.sunline.edsp.midware.rpc.core;
+package org.apache.skywalking.apm.plugin.sunlinerpc;
 
 import java.util.HashMap;
 import java.util.Map;
