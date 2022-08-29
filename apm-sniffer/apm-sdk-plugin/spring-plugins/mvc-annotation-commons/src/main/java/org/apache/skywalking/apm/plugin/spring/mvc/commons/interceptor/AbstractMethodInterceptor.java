@@ -124,15 +124,17 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
                             Method invokeMethod = findInvokeMethod(aObject);
                             Object response = invokeMethod.invoke(aObject, allArguments[0]);
                             String agentHeader = Base64.decode2UTFString(response.toString());
-                            String[] traceContextArray = agentHeader.substring(1, agentHeader.length() - 1).split(",");
-                            for (String traceContext : traceContextArray) {
-                                String[] entry = traceContext.split("=", 2);
-                                agentHeaderMap.put(entry[0].trim(), entry[1].trim());
+                            if (StringUtil.isNotEmpty(agentHeader)) {
+                                String[] traceContextArray = agentHeader.substring(1, agentHeader.length() - 1).split(",");
+                                for (String traceContext : traceContextArray) {
+                                    String[] entry = traceContext.split("=", 2);
+                                    agentHeaderMap.put(entry[0].trim(), entry[1].trim());
+                                }
+                                hasAgentHeader = true;
                             }
-                            hasAgentHeader = true;
                         }
                     } catch (Exception e) {
-                        LOGGER.info("Failed to get esbBody Information. Exception:{}", e);
+                        LOGGER.info("SpringMVC processing reflection method error:. Exception:{}", e);
                     }
                 }
 

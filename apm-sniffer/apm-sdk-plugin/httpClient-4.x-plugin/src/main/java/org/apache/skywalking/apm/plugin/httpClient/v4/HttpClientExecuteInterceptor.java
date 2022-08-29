@@ -33,6 +33,8 @@ import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
+import org.apache.skywalking.apm.agent.core.logging.api.ILog;
+import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
@@ -46,6 +48,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterceptor {
+
+    private static final ILog LOGGER = LogManager.getLogger(HttpClientExecuteInterceptor.class);
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
@@ -77,18 +81,22 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
             httpRequest.setHeader(next.getHeadKey(), next.getHeadValue());
             agentHeaderMap.put(next.getHeadKey(), next.getHeadValue());
         }
-        if (httpRequest instanceof HttpPost) {
-            if (StringUtil.isNotEmpty(Config.Agent.ESB_TRACE_CLASS_PATH)) {
-                HttpPost httpPost = (HttpPost) httpRequest;
+        try {
+            if (httpRequest instanceof HttpPost) {
+                if (StringUtil.isNotEmpty(Config.Agent.ESB_TRACE_CLASS_PATH)) {
+                    HttpPost httpPost = (HttpPost) httpRequest;
 
-                Class aClass = Class.forName(Config.Agent.ESB_TRACE_CLASS_PATH);
-                Object aObject = aClass.newInstance();
-                Method invokeMethod = findInvokeMethod(aObject);
-                Object response = invokeMethod.invoke(aObject, httpPost, Base64.encode(agentHeaderMap.toString()));
+                    Class aClass = Class.forName(Config.Agent.ESB_TRACE_CLASS_PATH);
+                    Object aObject = aClass.newInstance();
+                    Method invokeMethod = findInvokeMethod(aObject);
+                    Object response = invokeMethod.invoke(aObject, httpPost, Base64.encode(agentHeaderMap.toString()));
 
-                HttpEntityEnclosingRequest httpEntityEnclosingRequest = (HttpEntityEnclosingRequest) httpRequest;
-                httpEntityEnclosingRequest.setEntity((StringEntity) response);
+                    HttpEntityEnclosingRequest httpEntityEnclosingRequest = (HttpEntityEnclosingRequest) httpRequest;
+                    httpEntityEnclosingRequest.setEntity((StringEntity) response);
+                }
             }
+        } catch (Exception e) {
+            LOGGER.info("HttpClient processing reflection method error:. Exception:{}", e);
         }
     }
 
@@ -162,14 +170,10 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
         Method[] methods = object.getClass().getDeclaredMethods();
         if (methods != null && methods.length > 0) {
             for (Method m : methods) {
-                try {
-                    Class<?>[] clazzs = m.getParameterTypes();
-                    if (m.getName().equals(Config.Agent.ESB_TRACE_CLASS_SEND_METHOD) && clazzs.length == 2) {
-                        invokeMethod = m;
-                        break;
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
+                Class<?>[] clazzs = m.getParameterTypes();
+                if (m.getName().equals(Config.Agent.ESB_TRACE_CLASS_SEND_METHOD) && clazzs.length == 2) {
+                    invokeMethod = m;
+                    break;
                 }
             }
         }
