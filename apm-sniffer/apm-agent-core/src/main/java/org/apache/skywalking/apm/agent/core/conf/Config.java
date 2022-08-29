@@ -129,7 +129,7 @@ public class Config {
          * The package path of the probe interaction class at the business system
          * auxiliary burial point, including the class name
          */
-        @Length(50)
+        @Length(150)
         public static String ESB_TRACE_CLASS_PATH = "";
 
         /**
