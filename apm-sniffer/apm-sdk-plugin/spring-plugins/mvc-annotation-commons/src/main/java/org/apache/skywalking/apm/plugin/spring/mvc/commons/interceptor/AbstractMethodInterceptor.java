@@ -286,14 +286,10 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
         Method[] methods = object.getClass().getDeclaredMethods();
         if (methods != null && methods.length > 0) {
             for (Method m : methods) {
-                try {
-                    Class<?>[] clazzs = m.getParameterTypes();
-                    if (m.getName().equals(Config.Agent.ESB_TRACE_CLASS_READ_METHOD) && clazzs.length == 1) {
-                        invokeMethod = m;
-                        break;
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
+                Class<?>[] clazzs = m.getParameterTypes();
+                if (m.getName().equals(Config.Agent.ESB_TRACE_CLASS_READ_METHOD) && clazzs.length == 1) {
+                    invokeMethod = m;
+                    break;
                 }
             }
         }
