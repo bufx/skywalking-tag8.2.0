@@ -149,6 +149,12 @@ public class Config {
          */
         @Length(50)
         public static String ESB_TRACE_CLASS_SEND_HEADER_METHOD = "";
+
+        /**
+         * the probe interaction class send dubbo-rpc method name
+         */
+        @Length(50)
+        public static String ESB_TRACE_CLASS_SEND_HEADER_TO_DUBBO_METHOD = "";
     }
 
     public static class OsInfo {

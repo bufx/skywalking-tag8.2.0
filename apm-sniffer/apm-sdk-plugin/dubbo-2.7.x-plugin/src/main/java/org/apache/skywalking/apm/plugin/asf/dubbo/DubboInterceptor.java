@@ -23,6 +23,7 @@ import org.apache.dubbo.rpc.Invocation;
 import org.apache.dubbo.rpc.Invoker;
 import org.apache.dubbo.rpc.Result;
 import org.apache.dubbo.rpc.RpcContext;
+import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -32,9 +33,12 @@ import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.agent.core.util.ReflectionUtil;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * {@link DubboInterceptor} define how to enhance class {@link org.apache.dubbo.monitor.support.MonitorFilter#invoke(Invoker,
@@ -74,13 +78,16 @@ public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
             //invocation.getAttachments().put("contextData", contextDataStr);
             //@see https://github.com/alibaba/dubbo/blob/dubbo-2.5.3/dubbo-rpc/dubbo-rpc-api/src/main/java/com/alibaba/dubbo/rpc/RpcInvocation.java#L154-L161
             CarrierItem next = contextCarrier.items();
+            Map<String, String> agentHeaderMap = new HashMap<>();
             while (next.hasNext()) {
                 next = next.next();
-                rpcContext.getAttachments().put(next.getHeadKey(), next.getHeadValue());
+                agentHeaderMap.put(next.getHeadKey(), next.getHeadValue());
                 if (invocation.getAttachments().containsKey(next.getHeadKey())) {
                     invocation.getAttachments().remove(next.getHeadKey());
                 }
             }
+            ReflectionUtil.invokeMethod(
+                    Config.Agent.ESB_TRACE_CLASS_SEND_HEADER_TO_DUBBO_METHOD, 2, rpcContext, agentHeaderMap);
             needCollectArguments = DubboPluginConfig.Plugin.Dubbo.COLLECT_CONSUMER_ARGUMENTS;
             argumentsLengthThreshold = DubboPluginConfig.Plugin.Dubbo.CONSUMER_ARGUMENTS_LENGTH_THRESHOLD;
         } else {
