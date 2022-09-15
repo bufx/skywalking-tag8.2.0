@@ -19,11 +19,16 @@
 package org.apache.skywalking.apm.plugin.spring.resttemplate.sync;
 
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.agent.core.util.ReflectionUtil;
 import org.apache.skywalking.apm.plugin.spring.resttemplate.helper.RestTemplateRuntimeContextHelper;
 import org.springframework.http.client.AbstractClientHttpRequest;
 import org.springframework.http.client.ClientHttpRequest;
@@ -44,10 +49,13 @@ public class RestRequestInterceptor implements InstanceMethodsAroundInterceptor 
             AbstractClientHttpRequest httpRequest = (AbstractClientHttpRequest) clientHttpRequest;
             ContextCarrier contextCarrier = RestTemplateRuntimeContextHelper.getContextCarrier();
             CarrierItem next = contextCarrier.items();
+            Map<String, String> agentHeaderMap = new HashMap<>();
             while (next.hasNext()) {
                 next = next.next();
-                httpRequest.getHeaders().set(next.getHeadKey(), next.getHeadValue());
+                agentHeaderMap.put(next.getHeadKey(), next.getHeadValue());
             }
+            ReflectionUtil.invokeMethod(
+                    Config.Agent.ESB_TRACE_CLASS_SEND_HEADER_METHOD, 2, httpRequest, agentHeaderMap);
         }
         return ret;
     }

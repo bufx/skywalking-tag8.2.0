@@ -34,6 +34,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceM
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.agent.core.util.CollectionUtil;
 import org.apache.skywalking.apm.agent.core.util.MethodUtil;
+import org.apache.skywalking.apm.agent.core.util.ReflectionUtil;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.EnhanceRequireObjectCache;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.RequestHolder;
@@ -117,24 +118,18 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
                 Map<String, String> agentHeaderMap = new HashMap<>();
 
                 if (StringUtil.isEmpty(request.getHeader(SW8CarrierItem.HEADER_NAME))) {
-                    try {
-                        if (StringUtil.isNotEmpty(Config.Agent.ESB_TRACE_CLASS_PATH)) {
-                            Class aClass = Class.forName(Config.Agent.ESB_TRACE_CLASS_PATH);
-                            Object aObject = aClass.newInstance();
-                            Method invokeMethod = findInvokeMethod(aObject);
-                            Object response = invokeMethod.invoke(aObject, allArguments[0]);
-                            String agentHeader = Base64.decode2UTFString(response.toString());
-                            if (StringUtil.isNotEmpty(agentHeader)) {
-                                String[] traceContextArray = agentHeader.substring(1, agentHeader.length() - 1).split(",");
-                                for (String traceContext : traceContextArray) {
-                                    String[] entry = traceContext.split("=", 2);
-                                    agentHeaderMap.put(entry[0].trim(), entry[1].trim());
-                                }
-                                hasAgentHeader = true;
+                    Object response = ReflectionUtil.invokeMethod(
+                            Config.Agent.ESB_TRACE_CLASS_READ_METHOD, 1, allArguments[0]);
+                    if (response != null) {
+                        String agentHeader = Base64.decode2UTFString(response.toString());
+                        if (StringUtil.isNotEmpty(agentHeader)) {
+                            String[] traceContextArray = agentHeader.substring(1, agentHeader.length() - 1).split(",");
+                            for (String traceContext : traceContextArray) {
+                                String[] entry = traceContext.split("=", 2);
+                                agentHeaderMap.put(entry[0].trim(), entry[1].trim());
                             }
+                            hasAgentHeader = true;
                         }
-                    } catch (Exception e) {
-                        LOGGER.info("SpringMVC processing reflection method error:. Exception:{}", e);
                     }
                 }
 

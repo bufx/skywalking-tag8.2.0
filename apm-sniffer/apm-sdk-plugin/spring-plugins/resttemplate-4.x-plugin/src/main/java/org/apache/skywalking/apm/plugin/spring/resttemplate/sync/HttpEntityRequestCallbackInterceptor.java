@@ -27,8 +27,8 @@ import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.agent.core.util.ReflectionUtil;
 import org.apache.skywalking.apm.plugin.spring.resttemplate.helper.RestTemplateRuntimeContextHelper;
-import org.apache.skywalking.apm.util.StringUtil;
 import org.springframework.http.client.AbstractClientHttpRequest;
 import org.springframework.http.client.ClientHttpRequest;
 
@@ -52,24 +52,15 @@ public class HttpEntityRequestCallbackInterceptor implements InstanceMethodsArou
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Object ret) throws Throwable {
         ClientHttpRequest httpRequest = (ClientHttpRequest) allArguments[0];
         AbstractClientHttpRequest clientHttpRequest = (AbstractClientHttpRequest) httpRequest;
-        try {
-            if (StringUtil.isNotEmpty(Config.Agent.ESB_TRACE_CLASS_PATH)) {
-                Map<String, String> agentHeaderMap = new HashMap<>();
-                ContextCarrier contextCarrier = RestTemplateRuntimeContextHelper.getContextCarrier();
-                CarrierItem next = contextCarrier.items();
-                while (next.hasNext()) {
-                    next = next.next();
-                    agentHeaderMap.put(next.getHeadKey(), next.getHeadValue());
-                }
-                Class aClass = Class.forName(Config.Agent.ESB_TRACE_CLASS_PATH);
-                Object aObject = aClass.newInstance();
-                Method invokeMethod = findInvokeMethod(aObject);
-                invokeMethod.invoke(aObject, clientHttpRequest, Base64.encode(agentHeaderMap.toString()));
-            }
-        } catch (Exception e) {
-            LOGGER.info("RestTemplate processing reflection method error:. Exception:{}", e);
-            return ret;
+        Map<String, String> agentHeaderMap = new HashMap<>();
+        ContextCarrier contextCarrier = RestTemplateRuntimeContextHelper.getContextCarrier();
+        CarrierItem next = contextCarrier.items();
+        while (next.hasNext()) {
+            next = next.next();
+            agentHeaderMap.put(next.getHeadKey(), next.getHeadValue());
         }
+        ReflectionUtil.invokeMethod(
+                Config.Agent.ESB_TRACE_CLASS_SEND_METHOD, 2, clientHttpRequest, Base64.encode(agentHeaderMap.toString()));
         return ret;
     }
 

@@ -33,6 +33,7 @@ import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.agent.core.util.ReflectionUtil;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.apache.skywalking.apm.util.StringUtil;
 
@@ -59,24 +60,18 @@ public class CoreControllerInterceptor implements InstanceMethodsAroundIntercept
         Map<String, String> agentHeaderMap = new HashMap<>();
 
         if (StringUtil.isEmpty(request.getHeader(SW8CarrierItem.HEADER_NAME))) {
-            try {
-                if (StringUtil.isNotEmpty(Config.Agent.ESB_TRACE_CLASS_PATH)) {
-                    Class aClass = Class.forName(Config.Agent.ESB_TRACE_CLASS_PATH);
-                    Object aObject = aClass.newInstance();
-                    Method invokeMethod = findInvokeMethod(aObject);
-                    Object response = invokeMethod.invoke(aObject, object);
-                    String agentHeader = Base64.decode2UTFString(response.toString());
-                    if (StringUtil.isNotEmpty(agentHeader)) {
-                        String[] traceContextArray = agentHeader.substring(1, agentHeader.length() - 1).split(",");
-                        for (String traceContext : traceContextArray) {
-                            String[] entry = traceContext.split("=", 2);
-                            agentHeaderMap.put(entry[0].trim(), entry[1].trim());
-                        }
-                        hasAgentHeader = true;
+            Object response = ReflectionUtil.invokeMethod(
+                    Config.Agent.ESB_TRACE_CLASS_READ_METHOD, 1, object);
+            if (response != null) {
+                String agentHeader = Base64.decode2UTFString(response.toString());
+                if (StringUtil.isNotEmpty(agentHeader)) {
+                    String[] traceContextArray = agentHeader.substring(1, agentHeader.length() - 1).split(",");
+                    for (String traceContext : traceContextArray) {
+                        String[] entry = traceContext.split("=", 2);
+                        agentHeaderMap.put(entry[0].trim(), entry[1].trim());
                     }
+                    hasAgentHeader = true;
                 }
-            } catch (Exception e) {
-                LOGGER.info("union-paygate processing reflection method error:. Exception:{}", e);
             }
         }
 

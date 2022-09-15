@@ -143,6 +143,12 @@ public class Config {
          */
         @Length(50)
         public static String ESB_TRACE_CLASS_READ_METHOD = "";
+
+        /**
+         * the probe interaction class send header method name
+         */
+        @Length(50)
+        public static String ESB_TRACE_CLASS_SEND_HEADER_METHOD = "";
     }
 
     public static class OsInfo {
