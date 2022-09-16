@@ -81,7 +81,7 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
             agentHeaderMap.put(next.getHeadKey(), next.getHeadValue());
         }
         ReflectionUtil.invokeMethod(
-                Config.Agent.ESB_TRACE_CLASS_SEND_HEADER_METHOD, 2, httpRequest, agentHeaderMap);
+                Config.Agent.ESB_TRACE_CLASS_SEND_HEADER_TO_HTTPCLIENT_METHOD, 2, httpRequest, agentHeaderMap);
 
         if (httpRequest instanceof HttpPost) {
             Object response = ReflectionUtil.invokeMethod(

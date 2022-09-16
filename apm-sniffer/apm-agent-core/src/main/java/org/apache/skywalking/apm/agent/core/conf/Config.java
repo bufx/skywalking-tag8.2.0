@@ -145,10 +145,16 @@ public class Config {
         public static String ESB_TRACE_CLASS_READ_METHOD = "";
 
         /**
-         * the probe interaction class send header method name
+         * the probe interaction class send header to httpclient method name
          */
         @Length(50)
-        public static String ESB_TRACE_CLASS_SEND_HEADER_METHOD = "";
+        public static String ESB_TRACE_CLASS_SEND_HEADER_TO_HTTPCLIENT_METHOD = "";
+
+        /**
+         * the probe interaction class send header to rest template method name
+         */
+        @Length(50)
+        public static String ESB_TRACE_CLASS_SEND_HEADER_TO_REST_TEMPLATE_METHOD = "";
 
         /**
          * the probe interaction class send dubbo-rpc method name

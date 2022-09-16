@@ -55,7 +55,7 @@ public class RestRequestInterceptor implements InstanceMethodsAroundInterceptor 
                 agentHeaderMap.put(next.getHeadKey(), next.getHeadValue());
             }
             ReflectionUtil.invokeMethod(
-                    Config.Agent.ESB_TRACE_CLASS_SEND_HEADER_METHOD, 2, httpRequest, agentHeaderMap);
+                    Config.Agent.ESB_TRACE_CLASS_SEND_HEADER_TO_REST_TEMPLATE_METHOD, 2, httpRequest, agentHeaderMap);
         }
         return ret;
     }
