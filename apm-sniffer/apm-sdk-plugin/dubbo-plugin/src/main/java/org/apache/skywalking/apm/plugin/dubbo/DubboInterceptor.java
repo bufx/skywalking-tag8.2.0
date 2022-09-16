@@ -81,7 +81,7 @@ public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
                 }
             }
             ReflectionUtil.invokeMethod(
-                    Config.Agent.ESB_TRACE_CLASS_SEND_HEADER_TO_DUBBO_METHOD, 2, rpcContext, agentHeaderMap);
+                    Config.Agent.ESB_TRACE_CLASS_SEND_HEADER_METHOD, 2, "Dubbo", rpcContext, agentHeaderMap);
         } else {
             ContextCarrier contextCarrier = new ContextCarrier();
             CarrierItem next = contextCarrier.items();

@@ -87,7 +87,7 @@ public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
                 }
             }
             ReflectionUtil.invokeMethod(
-                    Config.Agent.ESB_TRACE_CLASS_SEND_HEADER_TO_DUBBO_METHOD, 2, rpcContext, agentHeaderMap);
+                    Config.Agent.ESB_TRACE_CLASS_SEND_HEADER_METHOD, 2, "Dubbo", rpcContext, agentHeaderMap);
             needCollectArguments = DubboPluginConfig.Plugin.Dubbo.COLLECT_CONSUMER_ARGUMENTS;
             argumentsLengthThreshold = DubboPluginConfig.Plugin.Dubbo.CONSUMER_ARGUMENTS_LENGTH_THRESHOLD;
         } else {
